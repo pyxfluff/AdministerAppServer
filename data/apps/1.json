@@ -1,1 +1,38 @@
-{"AdministerMetadata":{"AdministerGeneratedAt":"10/09/23 at 22:22:53","AdministerUpdatedAt":"10/09/23 at 22:22:53","AdministerVersionLastValidated":"1.0","AdministerVersionCreated":"1.0","AdministerIsOld":false,"AdministerSilenceOldWarning":false,"AdministerID":1,"AppDeveloperAppCount":0},"AppName":"Moderation+","AppTitle":"Moderation+ - The Ultimate Moderation Solution","AppDeveloper":"darkpixlz","AppDownloadCount":44,"AppInstalls":[0,"8787038683"],"AppRating":0,"AppLikes":474345673,"AppDislikes":46536,"AppLastInstall":"6/18/24 at 23:12:53","AppCreatedAt":"6/18/24 at 23:12:53","AppIconID":14650132071,"AppShortDescription":"Ban list, DataStore Banning, Ban Checker, Appealing suite, all in one.","AppLongDescription":"Full Description","AppInstallID":18116194237,"AppType":"Theme","AppTags":["Moderation","In-Panel"],"AppCreatedUnix":1718766702,"AppUpdatedUnix":1718766702}
+{
+    "AdministerMetadata": {
+        "AdministerGeneratedAt": "10/09/23 at 22:22:53",
+        "AdministerUpdatedAt": "10/09/23 at 22:22:53",
+        "AdministerVersionLastValidated": "1.0",
+        "AdministerVersionCreated": "1.0",
+        "AdministerAppAPIPreferredVersion": "1.0",
+        "AdministerDoesBootWithOldAppAPI": true,
+        "AdministerIsOld": false,
+        "AdministerSilenceOldWarning": false,
+        "AdministerID": 1,
+        "AppDeveloperAppCount": 0
+    },
+    "AppName": "Moderation+",
+    "AppTitle": "Moderation+ - The Ultimate Moderation Solution",
+    "AppDeveloper": "darkpixlz",
+    "AppDownloadCount": 44,
+    "AppInstalls": [
+        0,
+        "8787038683"
+    ],
+    "AppRating": 0,
+    "AppLikes": 474345673,
+    "AppDislikes": 46536,
+    "AppLastInstall": "6/18/24 at 23:12:53",
+    "AppCreatedAt": "6/18/24 at 23:12:53",
+    "AppIconID": 14650132071,
+    "AppShortDescription": "Ban list, DataStore Banning, Ban Checker, Appealing suite, all in one.",
+    "AppLongDescription": "Full Description",
+    "AppInstallID": 18116194237,
+    "AppType": "Theme",
+    "AppTags": [
+        "Moderation",
+        "In-Panel"
+    ],
+    "AppCreatedUnix": 1718766702,
+    "AppUpdatedUnix": 1718766702
+}

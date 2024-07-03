@@ -7,6 +7,9 @@
         "AppIconID": 0,
         "AppShortDescription": "Ban list, DataStore Banning, Ban Checker, Appealing suite, all in one.",
         "AppID": 1,
-        "AppType": "App"
+        "AppType": "App",
+        "AdministerAppAPIPreferredVersion": "1.0",
+        "AdministerVersionCreated": "1.0",
+        "AdministerVersionLastValidated": "1.0"
     }
 }
