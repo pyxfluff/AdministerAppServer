@@ -11,5 +11,18 @@
         "AdministerAppAPIPreferredVersion": "1.0",
         "AdministerVersionCreated": "1.0",
         "AdministerVersionLastValidated": "1.0"
+    },
+    "ps-test": {
+        "AppName": "PS Error Frame Test",
+        "AppDeveloper": "darkpixlz",
+        "AppDownloadCount": 0,
+        "AppRating": 0,
+        "AppIconID": 0,
+        "AppShortDescription": "Yet another test app which I'm not paid enough to make another description for",
+        "AppID": 2,
+        "AppType": "App",
+        "AdministerAppAPIPreferredVersion": "1.0",
+        "AdministerVersionCreated": "1.0",
+        "AdministerVersionLastValidated": "1.0"
     }
 }
