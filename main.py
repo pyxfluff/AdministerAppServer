@@ -14,7 +14,7 @@ from models import RatingPayload
 
 app = FastAPI()
 app_server_version = "1.0"
-roblox_lock = True
+roblox_lock = False
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
