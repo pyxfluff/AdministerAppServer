@@ -1,15 +1,23 @@
-# darkpixlz 2024
+# PyxFluff 2024
 
+# Webserver API
 from fastapi import FastAPI, Response, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from sys import version
+# Typing
 from pathlib import Path
 from types import FunctionType
 
+# Prominent color detection
+import socket, os
+from colorthief import ColorThief
+from urllib.request import urlretrieve
+
+# Misc
 import platform
 import orjson as json
+from sys import version
 from models import RatingPayload
 
 app = FastAPI()
@@ -20,7 +28,6 @@ sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
-        print(request.headers.get("Roblox-id"))
         if roblox_lock and not request.headers.get("Roblox-id"):
             return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers."}, status_code=400)
 
@@ -35,6 +42,10 @@ def request_app(app_id):
         return None
     
     return json.loads(app_path.read_text())
+
+@app.get("/")
+async def root():
+    return "OK"
 
 @app.get("/.administer/server")
 async def verify_administer_server():
@@ -153,3 +164,13 @@ async def app_list():
 @app.get("/query/{search}")
 async def search():
     pass
+
+@app.get("/misc-api/prominent-color")
+async def get_prominent_color(image_url: str):
+    path = socket.gethostname() == "codelet.obrien.lan" and "/Administer/tmp/Image.png" or ".Image.png"
+
+    urlretrieve(image_url, path) # be friendly to windows devs who dont have ~
+    color = ColorThief(path).get_color(quality=1)
+    os.remove(path)    
+
+    return color
