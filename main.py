@@ -23,13 +23,13 @@ from models import RatingPayload
 
 app = FastAPI()
 app_server_version = "1.0"
-roblox_lock = False
+roblox_lock = True
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
-        if roblox_lock and not request.headers.get("Roblox-id"):
+        if roblox_lock and not request.headers.get("Roblox-id") and not request.url == "http://0.0.0.0:7010":
             return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers."}, status_code=400)
 
         return await call_next(request)
