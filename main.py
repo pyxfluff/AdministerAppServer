@@ -26,6 +26,7 @@ from collections import defaultdict
 from modules.database import db
 from modules.models import RatingPayload
 
+t = time()
 app = FastAPI()
 app_server_version = "2.0"
 
@@ -105,7 +106,13 @@ def request_app(app_id):
 
 @app.get("/")
 async def root():
-    return "OK"
+    return JSONResponse({
+            "status": "OK",
+            "code": 200,
+            "uptime": time() - t,
+            "app_server": app_server_version,
+            "server_endpoint": "/.administer/server"
+    }, status_code=200)
 
 @app.get("/.administer/server")
 async def verify_administer_server():
@@ -116,7 +123,9 @@ async def verify_administer_server():
         "system": sys_string,
         "app_server_api_version": app_server_version,
         "target_administer_version": "1.0",
-        "known_apps": len(db.get_all(db.APPS))
+        "known_apps": len(db.get_all(db.APPS)),
+        "banner": db.get("administer_banner", db.APPS),
+        "banner_color": "#fffff"
     }, status_code=200)
 
 @app.get("/app/{appid}")
