@@ -42,12 +42,13 @@ mem_incidents = defaultdict(list)
 mem_blocked_ips = defaultdict(list)
 
 blocked_users = db.get("__BLOCKED_USERS__", db.API_KEYS)
-blocked_games = db.get("BLOCKED__GAMES__", db.API_KEYS)
+blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
+        print(request.url)
         if roblox_lock and not request.headers.get("Roblox-id") and not request.url == "http://0.0.0.0:7010/":
             return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers."}, status_code=400)
         
