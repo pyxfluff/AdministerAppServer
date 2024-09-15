@@ -49,7 +49,7 @@ sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
-        if roblox_lock and not request.headers.get("Roblox-id") and not request.url == "http://administer.notpyx.me/":
+        if roblox_lock and not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
             return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers."}, status_code=400)
         
         if api_lock and not request.headers.get("X-Administer-Key"):
