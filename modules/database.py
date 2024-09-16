@@ -35,6 +35,9 @@ class Database(object):
         assert isinstance(key, (str, int)), "key must be a string (integers accepted)!"
         assert isinstance(db, str), "db must be a string!"
 
+        if db == self.APPS:
+            key = str(key)
+
         db = self.db[db]
 
         # Fetch active document

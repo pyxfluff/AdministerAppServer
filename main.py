@@ -96,12 +96,6 @@ app.add_middleware(AuthMiddleware)
 app.add_middleware(RateLimiter)
 
 def request_app(app_id):
-    app_path = (Path("data/apps") / f"{app_id}.json")
-
-    if not app_path.is_file():
-        return None
-    
-    #return json.loads(app_path.read_text())
     return db.get(app_id, db.APPS)
 
 @app.get("/")
@@ -128,10 +122,12 @@ async def verify_administer_server():
         "banner_color": "#fffff"
     }, status_code=200)
 
-@app.get("/app/{appid}")
-async def get_app(appid: str):
+@app.get("/app/{appid:int}")
+async def get_app(appid: int):
     try:
         app = request_app(appid)
+
+        print(app)
 
         if app == None: raise FileNotFoundError
 
@@ -227,12 +223,13 @@ async def install_app(req: Request, app_id: str):
 @app.get("/list")
 async def app_list():
     apps = db.get_all(db.APPS)
+    print(apps)
     final = []
-    t = time()
+    _t = time()
 
     for app in apps:
         app = app["data"]
-        print(app)
+
         final.append(
             {
                 "AppName": app["AppName"],
@@ -246,7 +243,7 @@ async def app_list():
             }
         )
 
-    final.append({"processed_in": time() - t})
+    final.append({"processed_in": time() - _t})
 
     return JSONResponse(final, status_code=200)
 
