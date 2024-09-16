@@ -236,7 +236,7 @@ async def app_list():
         final.append(
             {
                 "AppName": app["AppName"],
-                "AppShostDescription": app["AppShortDescription"],
+                "AppShortDesciption": app["AppShortDescription"],
                 "AppDownloadCount": app["AppDownloadCount"],
                 "AppRating": app["AppLikes"] / (app["AppLikes"] + app["AppDislikes"]),
                 "AppDeveloperID": app.get("AppDeveloperID", 0),
