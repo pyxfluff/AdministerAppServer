@@ -127,8 +127,6 @@ async def get_app(appid: int):
     try:
         app = request_app(appid)
 
-        print(app)
-
         if app == None: raise FileNotFoundError
 
         return JSONResponse(app, status_code = 200)
@@ -223,7 +221,6 @@ async def install_app(req: Request, app_id: str):
 @app.get("/list")
 async def app_list():
     apps = db.get_all(db.APPS)
-    print(apps)
     final = []
     _t = time()
 
@@ -268,8 +265,6 @@ async def get_prominent_color(image_url: str):
 @app.api_route("/proxy/{subdomain}/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 async def proxy_request(subdomain: str, path: str, request: Request):
     target_url = f"https://{subdomain}.roblox.com/{path}"
-
-    print(target_url)
 
     headers = dict(request.headers)
     headers["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36"
