@@ -18,7 +18,6 @@ from urllib.request import urlretrieve
 # Misc
 import httpx
 import platform
-import requests
 
 from time import time
 import orjson as json
@@ -68,10 +67,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 # Limit this on a per-API basis
                 return await call_next(request)
             
-            elif not requests.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,isp").json()["isp"] == "Roblox":
+            elif not httpx.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,isp").json()["isp"] == "Roblox":
                 db.set(request.headers.get("CF-Connecting-IP"), db.ABUSE_LOGS, {
                     "timestamp": time(), 
-                    "ip-api_full_result":requests.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,message,country,regionName,isp,org,mobile,proxy,hosting,query").json(),
+                    "ip-api_full_result":httpx.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,message,country,regionName,isp,org,mobile,proxy,hosting,query").json(),
                     "roblox-id": request.headers.get("Roblox-Id"),
                     "user-agent": request.headers.get("user-agent", "unknown"),
                     "endpoint": request.url
