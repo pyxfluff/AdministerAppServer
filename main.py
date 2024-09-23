@@ -16,8 +16,10 @@ from colorthief import ColorThief
 from urllib.request import urlretrieve
 
 # Misc
-import platform
 import httpx
+import platform
+import requests
+
 from time import time
 import orjson as json
 from sys import version
@@ -40,18 +42,41 @@ rate_limit_max_incidents = 3
 
 limited_ips = defaultdict(list)
 mem_incidents = defaultdict(list)
+known_good_ips = defaultdict(list)
 mem_blocked_ips = defaultdict(list)
 
 blocked_users = db.get("__BLOCKED_USERS__", db.API_KEYS)
 blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
+forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
-        if roblox_lock and not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
-            return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers."}, status_code=400)
+        if int(request.headers.get("CF-Connecting-IP")) in forbidden_ips:
+            return JSONResponse({"code": 400, "message": "Sorry, but your IP has been blocked due to suspected abuse. Please reach out if this was a mistake."}, status_code=400)
         
+        if roblox_lock:
+            if not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
+                return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers."}, status_code=400)
+            
+            elif "RobloxStudio" in request.headers.get("user-agent"):
+                # Limit this on a per-API basis
+                return await call_next(request)
+            
+            elif not requests.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,isp").json()["isp"] == "Roblox":
+                db.set(request.headers.get("CF-Connecting-IP"), db.ABUSE_LOGS, {
+                    "timestamp": time(), 
+                    "ip-api_full_result":requests.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,message,country,regionName,isp,org,mobile,proxy,hosting,query").json(),
+                    "roblox-id": request.headers.get("Roblox-Id"),
+                    "user-agent": request.headers.get("user-agent", "unknown"),
+                })
+
+                forbidden_ips.append(int(request.headers.get("CF-Connecting-IP")))
+                db.set("BLOCKED_IPS", forbidden_ips, db.ABUSE_LOGS)
+
+                return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers. Possible API abuse detected, this incident will be reported."}, status_code=400)
+            
         if api_lock and not request.headers.get("X-Administer-Key"):
             return JSONResponse({"code": 400, "message": "A valid API key must be used."}, status_code=400)
         
@@ -140,6 +165,13 @@ async def get_app(appid: int):
 
 @app.post("/rate/{app_id}")
 async def rate_app(req: Request, app_id: str, payload: RatingPayload):
+    if "RobloxStudio" in req.headers.get("user-agent"):
+        return JSONResponse({
+            "code": 400, 
+            "message": "studio-restricted", 
+            "user_facing_message": "Sorry, but this API endpoint may not be used in Roblox Studio. Please try it in a live game!"
+        }, status_code = 400)
+    
     place = db.get(req.headers.get("Roblox-Id"), db.PLACES)
     rating = payload.Rating
     
@@ -150,7 +182,7 @@ async def rate_app(req: Request, app_id: str, payload: RatingPayload):
             "user_facing_message": "We can't find your game."
         }, status_code=400)
 
-    if int(app_id) not in place["apps"]:
+    if app_id not in place["apps"]:
         return JSONResponse({
             "code": 400,
             "message": "bad-request",
@@ -170,7 +202,7 @@ async def rate_app(req: Request, app_id: str, payload: RatingPayload):
         app[rating and "AppLikes" or "AppDislikes"] -= 1
         print("Overwriting rating.")
     
-    place["ratings"][app_id] = {"rating": rating, "owned": True}
+    place["ratings"][app_id] = {"rating": rating, "owned": True, "timestamp": time()}
     app[rating and "AppLikes" or "AppDislikes"] += 1
 
     db.set(app_id, app, db.APPS)
@@ -188,7 +220,12 @@ async def install_app(req: Request, app_id: str):
     place = db.get(req.headers.get("Roblox-Id"), db.PLACES)
 
     if not place:
-        place = json.dumps({"apps": [],"ratings":{}})
+        place = {
+            "apps": [],
+            "ratings": {},
+            "start_ts": time(), # make it easier to catch abusers 
+            "start_source": ("RobloxStudio" in req.headers.get("user-agent") and "STUDIO" or "RobloxApp" in req.headers.get("user-agent") and "CLIENT" or "UNKNOWN")
+        }
 
     app = request_app(app_id)
     if not app:
@@ -291,3 +328,7 @@ async def proxy_request(subdomain: str, path: str, request: Request):
             response = await client.options(target_url, headers=headers, params=params)
 
     return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
+
+@app.get("/headers")
+def headers(req: Request):
+    return req.headers
