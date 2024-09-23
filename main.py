@@ -40,9 +40,9 @@ rate_limit_reqs = 25
 rate_limit_reset = 120
 rate_limit_max_incidents = 3
 
+known_good_ips = []
 limited_ips = defaultdict(list)
 mem_incidents = defaultdict(list)
-known_good_ips = defaultdict(list)
 mem_blocked_ips = defaultdict(list)
 
 blocked_users = db.get("__BLOCKED_USERS__", db.API_KEYS)
@@ -59,6 +59,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if roblox_lock:
             if not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
                 return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers."}, status_code=400)
+            
+            if request.headers.get("CF-Connecting-IP") in known_good_ips:
+                # all is well
+                return await call_next(request)
             
             elif "RobloxStudio" in request.headers.get("user-agent"):
                 # Limit this on a per-API basis
@@ -77,6 +81,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 db.set("BLOCKED_IPS", forbidden_ips, db.ABUSE_LOGS)
 
                 return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers. Possible API abuse detected, this incident will be reported."}, status_code=400)
+            
+            else:
+                known_good_ips.append(request.headers.get("CF-Connecting-IP"))
             
         if api_lock and not request.headers.get("X-Administer-Key"):
             return JSONResponse({"code": 400, "message": "A valid API key must be used."}, status_code=400)
