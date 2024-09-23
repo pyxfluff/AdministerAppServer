@@ -2,9 +2,7 @@
 # Repurposed bc it's running on the same VM
 
 # Modules
-import time
 import platform
-import contextlib
 from typing import Any, List, Dict
 
 from pymongo import MongoClient
@@ -72,21 +70,6 @@ class Database(object):
         document = self.db[db].find_one({f"data.{k}": v for k, v in identifier.items()})
         return document and document["administer_id"]
 
-    def delete_old(self, difference: int) -> int:
-        current_time, old_keys = time.time(), []
-        for document in self.db[self.CODES].find({}):
-            created_at = document["data"].get("CreatedAt")
-            if not isinstance(created_at, int):
-                continue
-
-            elif created_at < current_time - difference:
-                old_keys.append(document["administer_id"])
-
-        if old_keys:
-            self.bulk_delete(old_keys, self.CODES)
-
-        return len(old_keys)
-
     def delete(self, key: str | int, db: str) -> None:
         assert isinstance(key, (str, int)), "key must be a string or integer!"
 
@@ -119,13 +102,6 @@ class Database(object):
 
     def raw_find_all(self, identifier: dict, db: str) -> List[dict]:
         return self.db[db].find(identifier)
-
-    # Context managers
-    @contextlib.contextmanager
-    def as_user(self, user_id: int) -> None: # type: ignore
-        user_data = self.get(user_id, self.PLAYERS) or {}  # Must always be a dictionary, do not edit
-        yield user_data
-        self.set(user_id, user_data, self.PLAYERS)
 
 # Initialize db
 db = Database() 
