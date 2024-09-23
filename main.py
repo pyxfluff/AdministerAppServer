@@ -53,7 +53,7 @@ sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
-        if int(request.headers.get("CF-Connecting-IP")) in forbidden_ips:
+        if request.headers.get("CF-Connecting-IP") in forbidden_ips:
             return JSONResponse({"code": 400, "message": "Sorry, but your IP has been blocked due to suspected abuse. Please reach out if this was a mistake."}, status_code=400)
         
         if roblox_lock:
@@ -77,7 +77,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     "endpoint": request.url
                 })
 
-                forbidden_ips.append(int(request.headers.get("CF-Connecting-IP")))
+                forbidden_ips.append(request.headers.get("CF-Connecting-IP"))
                 db.set("BLOCKED_IPS", forbidden_ips, db.ABUSE_LOGS)
 
                 return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers. Possible API abuse detected, this incident will be reported."}, status_code=400)
