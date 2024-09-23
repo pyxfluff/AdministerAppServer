@@ -70,6 +70,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     "ip-api_full_result":requests.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,message,country,regionName,isp,org,mobile,proxy,hosting,query").json(),
                     "roblox-id": request.headers.get("Roblox-Id"),
                     "user-agent": request.headers.get("user-agent", "unknown"),
+                    "endpoint": request.url
                 })
 
                 forbidden_ips.append(int(request.headers.get("CF-Connecting-IP")))
