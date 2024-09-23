@@ -34,7 +34,7 @@ api_lock = False
 enable_sessions = False
 roblox_lock = not "zen" in platform.release()
 
-rate_limit_reqs = 10
+rate_limit_reqs = 25
 rate_limit_reset = 120
 rate_limit_max_incidents = 3
 
