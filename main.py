@@ -56,6 +56,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return JSONResponse({"code": 400, "message": "Sorry, but your IP has been blocked due to suspected abuse. Please reach out if this was a mistake."}, status_code=400)
         
         if roblox_lock:
+            if request.url == "http://administer.notpyx.me/" or request.url == "http://administer.notpyx.me/":
+                return await call_next(request) # allow the status bot to see the site
+            
             if not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
                 return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers."}, status_code=400)
             
