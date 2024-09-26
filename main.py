@@ -279,7 +279,7 @@ async def app_list():
                 "AppName": app["AppName"],
                 "AppShortDescription": app["AppShortDescription"],
                 "AppDownloadCount": app["AppDownloadCount"],
-                "AppRating": app["AppLikes"] / (app["AppLikes"] + app["AppDislikes"]),
+                "AppRating": ((app["AppLikes"] + app["AppDislikes"]) == 0 and "---%" or app["AppLikes"] / (app["AppLikes"] + app["AppDislikes"])),
                 "AppDeveloperID": app.get("AppDeveloperID", 0),
                 "UpdatedAt": app["AppUpdatedUnix"],
                 "AppID": app["AdministerMetadata"]["AdministerID"],
