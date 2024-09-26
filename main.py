@@ -12,6 +12,7 @@ from types import FunctionType
 
 # Prominent color detection
 import socket, os
+from random import randint
 from colorthief import ColorThief
 from urllib.request import urlretrieve
 
@@ -295,16 +296,12 @@ async def app_list():
 async def search(req: Request, search: str):
     return db.raw_find_all({"AppName": search.lower()}, db.APPS)
 
-@app.get("/misc-api/donation-passes")
-async def donation_passes():
-    return JSONResponse(content=json.loads((Path("data") / "donations.json").read_text()), status_code=200)
-
 @app.get("/misc-api/prominent-color")
 async def get_prominent_color(image_url: str):
-    path = socket.gethostname() == "codelet.obrien.lan" and "/Administer/tmp/Image.png" or ".Image.png"
+    path = f"{socket.gethostname() == "codelet.obrien.lan" and "/Administer/tmp/Image.png" or ".Image.png"}-r{randint(1, 2500)}"
 
     urlretrieve(image_url, path) # be friendly to windows devs who dont have ~
-    color = ColorThief(path).get_color(quality=1)
+    color = ColorThief(path).get_color(quality=9999)
     os.remove(path)    
 
     return color
