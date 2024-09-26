@@ -298,10 +298,11 @@ async def search(req: Request, search: str):
 
 @app.get("/misc-api/prominent-color")
 async def get_prominent_color(image_url: str):
+    # be friendly to windows devs who dont have ~
     path = f"{socket.gethostname() == "codelet.obrien.lan" and "/Administer/tmp/Image.png" or ".Image.png"}-r{randint(1, 2500)}"
 
-    urlretrieve(image_url, path) # be friendly to windows devs who dont have ~
-    color = ColorThief(path).get_color(quality=9999)
+    urlretrieve(image_url, path)
+    color = ColorThief(path).get_color(quality=1)
     os.remove(path)    
 
     return color
