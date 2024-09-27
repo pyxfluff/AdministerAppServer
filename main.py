@@ -11,7 +11,8 @@ from pathlib import Path
 from types import FunctionType
 
 # Prominent color detection
-import socket, os
+import socket, os, re
+from io import BytesIO
 from random import randint
 from colorthief import ColorThief
 from urllib.request import urlretrieve
@@ -298,14 +299,15 @@ async def search(req: Request, search: str):
 
 @app.get("/misc-api/prominent-color")
 async def get_prominent_color(image_url: str):
-    # be friendly to windows devs who dont have ~
-    path = f"{socket.gethostname() == "codelet.obrien.lan" and "/Administer/tmp/Image.png" or ".Image.png"}-r{randint(1, 2500)}"
+    if not roblox_lock:
+        return ColorThief(BytesIO(httpx.get(image_url).content)).get_color(quality=1)
+    else: 
+        # prevent vm IP leakage
+        if r'^https://tr\.rbxcdn\.com/.+' == None:
+            return JSONResponse({"code": 400, "message": "URL must be to Roblox's CDN."}, status_code=400)
+        
+        return ColorThief(BytesIO(httpx.get(image_url).content)).get_color(quality=1)
 
-    urlretrieve(image_url, path)
-    color = ColorThief(path).get_color(quality=1)
-    os.remove(path)    
-
-    return color
 
 @app.api_route("/proxy/{subdomain}/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 async def proxy_request(subdomain: str, path: str, request: Request):
