@@ -3,3 +3,4 @@ __pycache__/
 .venv/
 
 EXAMPLE_APP_JSON.json
+upload_apps.py

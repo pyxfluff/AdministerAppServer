@@ -52,13 +52,16 @@ forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
+
+
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
         if request.headers.get("CF-Connecting-IP") in forbidden_ips:
             return JSONResponse({"code": 400, "message": "Sorry, but your IP has been blocked due to suspected abuse. Please reach out if this was a mistake."}, status_code=400)
         
         if roblox_lock:
-            if request.url == "http://administer.notpyx.me/" or request.url == "http://administer.notpyx.me/":
+            if request.url == "http://administer.notpyx.me/" or request.url == "https://administer.notpyx.me/" or \
+                str(request.url).split("?")[0] == "https://administer.notpyx.me/":
                 return await call_next(request) # allow the status bot to see the site
             
             if not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
