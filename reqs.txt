@@ -1,2 +1,7 @@
 fastapi
 orjson
+nanoid
+pathlib
+colorthief
+urllib
+httpx

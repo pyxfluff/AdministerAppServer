@@ -22,8 +22,8 @@ import httpx
 import platform
 
 from time import time
-import orjson as json
 from sys import version
+from nanoid import generate
 from collections import defaultdict
 
 from modules.database import db
@@ -52,7 +52,7 @@ forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
-
+print(len(db.get_all(db.PLACES)), db.get_all(db.PLACES))
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
@@ -342,6 +342,6 @@ async def proxy_request(subdomain: str, path: str, request: Request):
 
     return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
 
-@app.get("/headers")
-def headers(req: Request):
-    return req.headers
+@app.get("/logs/{logid:str}")
+def get_log(req: Request, logid: str):
+    return db.get(logid, db.LOGS)
