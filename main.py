@@ -61,7 +61,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         
         if roblox_lock:
             if request.url == "http://administer.notpyx.me/" or request.url == "https://administer.notpyx.me/" or \
-                str(request.url).split("?")[0] == "https://administer.notpyx.me/" or str(request.url).split(".")[3] == "logs":
+                str(request.url).split("?")[0] == "https://administer.notpyx.me/" or str(request.url).split("/")[3] == "logs":
                 return await call_next(request) # allow the status bot to see the site
             
             if not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
