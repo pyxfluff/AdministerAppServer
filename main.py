@@ -311,37 +311,6 @@ async def get_prominent_color(image_url: str):
         
         return ColorThief(BytesIO(httpx.get(image_url).content)).get_color(quality=1)
 
-
-@app.api_route("/proxy/{subdomain}/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
-async def proxy_request(subdomain: str, path: str, request: Request):
-    target_url = f"https://{subdomain}.roblox.com/{path}"
-
-    headers = dict(request.headers)
-    headers["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36"
-    headers["host"] = f"{subdomain}.roblox.com"
-
-    headers.pop("roblox-id", None)
-    params = dict(request.query_params)
-
-    async with httpx.AsyncClient() as client:
-        if request.method == "GET":
-            response = await client.get(target_url, headers=headers, params=params)
-        elif request.method == "POST":
-            form = await request.form()
-            response = await client.post(target_url, headers=headers, params=params, data=form)
-        elif request.method == "PUT":
-            data = await request.body()
-            response = await client.put(target_url, headers=headers, params=params, content=data)
-        elif request.method == "DELETE":
-            response = await client.delete(target_url, headers=headers, params=params)
-        elif request.method == "PATCH":
-            data = await request.body()
-            response = await client.patch(target_url, headers=headers, params=params, content=data)
-        elif request.method == "OPTIONS":
-            response = await client.options(target_url, headers=headers, params=params)
-
-    return Response(content=response.content, status_code=response.status_code, headers=dict(response.headers))
-
 @app.get("/logs/{logid:str}")
 def get_log(req: Request, logid: str):
     return db.get(logid, db.LOGS)
