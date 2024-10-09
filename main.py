@@ -52,8 +52,6 @@ forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
-print(len(db.get_all(db.PLACES)), db.get_all(db.PLACES))
-
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
         if request.headers.get("CF-Connecting-IP") in forbidden_ips:
