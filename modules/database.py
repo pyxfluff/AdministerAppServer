@@ -17,7 +17,7 @@ class Database(object):
             setattr(self, db_item.upper(), db_item)
 
         # Connect to Mongo
-        client = MongoClient("zen" in platform.release() and "mongodb://mail.iipython.dev:27017" or "mongodb://127.0.0.1:27017", serverSelectionTimeoutMS = 3000)
+        client = MongoClient("zen" in platform.release() and "mongodb://mail.iipython.dev:27017" or "mongodb://127.0.0.1:27017", serverSelectionTimeoutMS = 15000)
 
         self.db = client["administer"]  # administer database to hopefully not mess with codelet dev
 
