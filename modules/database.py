@@ -99,7 +99,6 @@ class Database(object):
     def raw_purge(self, identifier: dict, db: str) -> dict:
         return self.db[db].delete_many(identifier)
 
-
     def raw_find_all(self, identifier: dict, db: str) -> List[dict]:
         return self.db[db].find(identifier)
 

@@ -257,7 +257,6 @@ async def install_app(req: Request, app_id: str):
     
     place["apps"].append(app_id)
     app["AppDownloadCount"] += 1
-    app["AppInstalls"].append(req.headers.get("Roblox-Id"))
 
     db.set(app_id, app, db.APPS)
     db.set(req.headers.get("Roblox-Id"), place, db.PLACES)
