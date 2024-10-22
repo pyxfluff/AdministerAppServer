@@ -131,7 +131,7 @@ class RateLimiter(BaseHTTPMiddleware):
 
         limited_ips[cf_ip] = [
             timestamp for timestamp in limited_ips[cf_ip]
-            if timestamp > time() - rate_limit_reset
+            if timestamp > time.time() - rate_limit_reset
         ]
 
         if len(limited_ips[cf_ip]) >= rate_limit_reqs:
