@@ -6,29 +6,21 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 
-# Typing
-from pathlib import Path
-from types import FunctionType
-
-# Prominent color detection
-import socket, os, re
-from io import BytesIO
-from random import randint
-from colorthief import ColorThief
-from urllib.request import urlretrieve
-
-# Misc
 import re
 import time
 import httpx
 import platform
 
+from io import BytesIO
+from PIL import Image
 from sys import version
-from nanoid import generate
+from types import FunctionType
+from colorthief import ColorThief
 from collections import defaultdict
 
 from modules.database import db
 from modules.models import RatingPayload
+#from modules.ColorDetection import get_color
 
 t = time.time()
 app = FastAPI()
@@ -53,6 +45,23 @@ forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
 ACCEPTED_ADMINISTER_VERSIONS = ["1.0", "1.1", "1.1.1", "1.2"]
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
+
+def get_color(path):
+    r, g, b, total_pixels = 0, 0, 0, 0
+    pixels = list(Image.open(path).getdata())
+
+    for pixel in pixels:
+        if pixel == (0, 0, 0, 0):
+            continue
+
+        r += pixel[0]
+        g += pixel[1]
+        b += pixel[2]
+        total_pixels += 1
+
+    print(total_pixels, r, g, b)
+    return r / total_pixels, g / total_pixels, b / total_pixels
+
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
@@ -302,13 +311,13 @@ async def search(req: Request, search: str):
 @app.get("/misc-api/prominent-color")
 async def get_prominent_color(image_url: str):
     if not roblox_lock:
-        return ColorThief(BytesIO(httpx.get(image_url).content)).get_color(quality=1)
+        return get_color(BytesIO(httpx.get(image_url).content))
     else: 
         # prevent vm IP leakage
-        if not re.search('^https://tr\.rbxcdn\.com/.+', image_url):
+        if not re.search(r'^https://tr\.rbxcdn\.com/.+', image_url):
             return JSONResponse({"code": 400, "message": "URL must be to Roblox's CDN."}, status_code=400)
         
-        return ColorThief(BytesIO(httpx.get(image_url).content)).get_color(quality=5)
+        return get_color(BytesIO(httpx.get(image_url).content))
 
 @app.get("/logs/{logid:str}")
 def get_log(req: Request, logid: str):
