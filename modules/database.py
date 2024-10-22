@@ -13,7 +13,7 @@ class Database(object):
     def __init__(self) -> None:
 
         # Reference tables
-        for db_item in ["error_refs", "apps", "proxy_cache", "api_keys", "places", "abuse_logs", "logs"]:
+        for db_item in ["error_refs", "apps", "reported_versions", "api_keys", "places", "abuse_logs", "logs"]:
             setattr(self, db_item.upper(), db_item)
 
         # Connect to Mongo

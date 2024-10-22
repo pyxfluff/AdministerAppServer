@@ -18,10 +18,11 @@ from colorthief import ColorThief
 from urllib.request import urlretrieve
 
 # Misc
+import re
+import time
 import httpx
 import platform
 
-from time import time
 from sys import version
 from nanoid import generate
 from collections import defaultdict
@@ -29,7 +30,7 @@ from collections import defaultdict
 from modules.database import db
 from modules.models import RatingPayload
 
-t = time()
+t = time.time()
 app = FastAPI()
 app_server_version = "2.0"
 
@@ -50,6 +51,7 @@ blocked_users = db.get("__BLOCKED_USERS__", db.API_KEYS)
 blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
 forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
+ACCEPTED_ADMINISTER_VERSIONS = ["1.0", "1.1", "1.1.1", "1.2"]
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -75,7 +77,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             
             elif not httpx.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,isp").json()["isp"] == "Roblox":
                 db.set(request.headers.get("CF-Connecting-IP"), db.ABUSE_LOGS, {
-                    "timestamp": time(), 
+                    "timestamp": time.time(), 
                     "ip-api_full_result":httpx.get(f"http://ip-api.com/json/{request.headers.get("CF-Connecting-IP")}?fields=status,message,country,regionName,isp,org,mobile,proxy,hosting,query").json(),
                     "roblox-id": request.headers.get("Roblox-Id"),
                     "user-agent": request.headers.get("user-agent", "unknown"),
@@ -126,7 +128,7 @@ class RateLimiter(BaseHTTPMiddleware):
         if len(limited_ips[cf_ip]) >= rate_limit_reqs:
             return Response(status_code=429, content="Too many requests. Try again later. Do NOT refresh this page or else you will be blocked.")
 
-        limited_ips[cf_ip].append(time())
+        limited_ips[cf_ip].append(time.time())
         response = await call_next(request)
         return response
     
@@ -141,7 +143,7 @@ async def root():
     return JSONResponse({
             "status": "OK",
             "code": 200,
-            "uptime": time() - t,
+            "uptime": time.time() - t,
             "app_server": app_server_version,
             "server_endpoint": "/.administer/server"
     }, status_code=200)
@@ -215,7 +217,7 @@ async def rate_app(req: Request, app_id: str, payload: RatingPayload):
         app[rating and "AppLikes" or "AppDislikes"] -= 1
         print("Overwriting rating.")
     
-    place["ratings"][app_id] = {"rating": rating, "owned": True, "timestamp": time()}
+    place["ratings"][app_id] = {"rating": rating, "owned": True, "timestamp": time.time()}
     app[rating and "AppLikes" or "AppDislikes"] += 1
 
     db.set(app_id, app, db.APPS)
@@ -236,7 +238,7 @@ async def install_app(req: Request, app_id: str):
         place = {
             "apps": [],
             "ratings": {},
-            "start_ts": time(), # make it easier to catch abusers 
+            "start_ts": time.time(), # make it easier to catch abusers 
             "start_source": ("RobloxStudio" in req.headers.get("user-agent") and "STUDIO" or "RobloxApp" in req.headers.get("user-agent") and "CLIENT" or "UNKNOWN")
         }
 
@@ -271,7 +273,7 @@ async def install_app(req: Request, app_id: str):
 async def app_list():
     apps = db.get_all(db.APPS)
     final = []
-    _t = time()
+    _t = time.time()
 
     for app in apps:
         app = app["data"]
@@ -289,7 +291,7 @@ async def app_list():
             }
         )
 
-    final.append({"processed_in": time() - _t})
+    final.append({"processed_in": time.time() - _t})
 
     return JSONResponse(final, status_code=200)
 
@@ -303,11 +305,36 @@ async def get_prominent_color(image_url: str):
         return ColorThief(BytesIO(httpx.get(image_url).content)).get_color(quality=1)
     else: 
         # prevent vm IP leakage
-        if r'^https://tr\.rbxcdn\.com/.+' == None:
+        if not re.search('^https://tr\.rbxcdn\.com/.+', image_url):
             return JSONResponse({"code": 400, "message": "URL must be to Roblox's CDN."}, status_code=400)
         
-        return ColorThief(BytesIO(httpx.get(image_url).content)).get_color(quality=1)
+        return ColorThief(BytesIO(httpx.get(image_url).content)).get_color(quality=5)
 
 @app.get("/logs/{logid:str}")
 def get_log(req: Request, logid: str):
     return db.get(logid, db.LOGS)
+
+@app.post("/report-version")
+async def report_version(req: Request):
+    json = await req.json()
+    key = db.get(round(time.time() / 86400), db.REPORTED_VERSIONS)
+    branch = str(json["branch"]).lower()
+
+    if not json["version"] in ACCEPTED_ADMINISTER_VERSIONS:
+        return JSONResponse({"code": 400, "message": "Unsupported version, please update Administer"}, status_code=400)
+
+    if not key:
+        key = {
+            "internal": {},
+            "qa": {},
+            "canary": {},
+            "beta": {},
+            "live": {},
+        }
+
+    if not key[branch].get(json["version"]):
+        key[branch][json["version"]] = 0
+    
+    key[branch][json["version"]] += 1
+
+    db.set(round(time.time() / 86400), key, db.REPORTED_VERSIONS)
