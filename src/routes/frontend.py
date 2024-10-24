@@ -16,6 +16,8 @@ day = round(time() / 86400)
 
 @app.get("/")
 def index(req: Request):
+    global day
+    
     if day != round(time() / 86400):
         day = round(time() / 86400)
         daily_report(db)
