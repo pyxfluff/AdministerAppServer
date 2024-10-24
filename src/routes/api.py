@@ -206,3 +206,5 @@ async def report_version(req: Request):
     key[branch][json["version"]] += 1
 
     db.set(round(time.time() / 86400), key, db.REPORTED_VERSIONS)
+
+    return JSONResponse({"code": 200, "message": "Version has been recorded"}, status_code=200)
