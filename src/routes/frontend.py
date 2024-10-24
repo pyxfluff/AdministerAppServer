@@ -11,7 +11,7 @@ from fastapi import Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-root = Path(__file__).parent.parent
+root = Path(__file__).parents[1]
 day = round(time() / 86400)
 
 @app.get("/")
