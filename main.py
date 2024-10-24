@@ -18,8 +18,8 @@ from types import FunctionType
 from colorthief import ColorThief
 from collections import defaultdict
 
-from modules.database import db
-from modules.models import RatingPayload
+from src.database import db
+from src.models import RatingPayload
 #from modules.ColorDetection import get_color
 
 t = time.time()
@@ -28,23 +28,9 @@ app_server_version = "2.0"
 
 api_lock = False
 enable_sessions = False
-roblox_lock = not "zen" in platform.release()
 
-rate_limit_reqs = 25
-rate_limit_reset = 120
-rate_limit_max_incidents = 3
 
-known_good_ips = []
-limited_ips = defaultdict(list)
-mem_incidents = defaultdict(list)
-mem_blocked_ips = defaultdict(list)
 
-blocked_users = db.get("__BLOCKED_USERS__", db.API_KEYS)
-blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
-forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
-
-ACCEPTED_ADMINISTER_VERSIONS = ["1.0", "1.1", "1.1.1", "1.2"]
-sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 def get_color(path):
     r, g, b, total_pixels = 0, 0, 0, 0
