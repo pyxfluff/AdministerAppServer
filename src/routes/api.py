@@ -18,6 +18,8 @@ from io import BytesIO
 from src.database import db
 from src.models.RatingPayload import RatingPayload
 
+import src
+
 t = time.time()
 
 roblox_lock = not "zen" in platform.release()
@@ -126,6 +128,8 @@ async def install_app(req: Request, app_id: str):
 
     db.set(app_id, app, db.APPS)
     db.set(req.headers.get("Roblox-Id"), place, db.PLACES)
+
+    src.downloads_today += 1
 
     return JSONResponse({
             "code": 200,

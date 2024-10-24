@@ -2,7 +2,10 @@
 
 from fastapi import FastAPI
 
+# meta
 __version__ = 3
+requests = 0
+downloads_today = 0
 
 app = FastAPI()
 

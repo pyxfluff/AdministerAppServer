@@ -12,7 +12,7 @@ from types import FunctionType
 from collections import defaultdict
 
 from src.database import db
-from src import app
+import src
 
 roblox_lock = not "zen" in platform.release()
 
@@ -21,7 +21,7 @@ rate_limit_reset = 150
 rate_limit_max_incidents = 5
 
 api_lock = False
-enable_sessions = True
+enable_sessions = False
 
 known_good_ips = []
 limited_ips = defaultdict(list)
@@ -65,16 +65,16 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 forbidden_ips.append(request.headers.get("CF-Connecting-IP"))
                 db.set("BLOCKED_IPS", forbidden_ips, db.ABUSE_LOGS)
 
-                return JSONResponse({"code": 400, "message": "This App Server is only accepting requests from Roblox game servers. Possible API abuse detected, this incident will be reported."}, status_code=400)
+                return JSONResponse({"code": 400, "message": "Your IP has been blocked due to suspected API abuse."}, status_code=401)
             
             else:
                 known_good_ips.append(request.headers.get("CF-Connecting-IP"))
             
         if api_lock and not request.headers.get("X-Administer-Key"):
-            return JSONResponse({"code": 400, "message": "A valid API key must be used."}, status_code=400)
+            return JSONResponse({"code": 400, "message": "A valid API key must be used."}, status_code=401)
         
         elif api_lock and not db.get(request.headers.get("X-Administer-Key"), db.API_KEYS):
-            return JSONResponse({"code": 400, "message": "This API key is not valid."}, status_code=400)
+            return JSONResponse({"code": 400, "message": "Please provide a valid API key."}, status_code=401)
         
         elif api_lock:
             api_key_data = db.get(request.headers.get("X-Administer-Key"), db.API_KEYS)
@@ -96,6 +96,7 @@ class RateLimiter(BaseHTTPMiddleware):
 
         if not cf_ip:
             # development install?
+            src.requests += 1
             return await call_next(request)
 
         limited_ips[cf_ip] = [
@@ -107,8 +108,10 @@ class RateLimiter(BaseHTTPMiddleware):
             return Response(status_code=429, content="Too many requests. Try again later. Do NOT refresh this page or else you will be blocked.")
 
         limited_ips[cf_ip].append(time.time())
-        response = await call_next(request)
-        return response
+
+        src.requests += 1
+
+        return await call_next(request)
     
-app.add_middleware(AuthMiddleware)
-app.add_middleware(RateLimiter)
+src.app.add_middleware(AuthMiddleware)
+src.app.add_middleware(RateLimiter)
