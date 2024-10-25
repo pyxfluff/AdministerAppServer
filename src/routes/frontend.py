@@ -17,6 +17,8 @@ day = round(time() / 86400)
 @app.get("/")
 def index(req: Request):
     global day
+
+    print(day, day == round(time() / 86400), day == round(time() / 86400) and "sending report" or "report not needed")
     
     if day != round(time() / 86400):
         day = round(time() / 86400)
