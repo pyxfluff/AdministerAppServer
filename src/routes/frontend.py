@@ -18,10 +18,7 @@ day = round(time() / 86400)
 def index(req: Request):
     global day
 
-    print(day, day == round(time() / 86400), day != round(time() / 86400) and "sending report" or "report not needed")
-    daily_report(db)
-    
-    if day != round(time() / 86400):
+    if not day == round(time() / 86400):
         day = round(time() / 86400)
         daily_report(db)
 

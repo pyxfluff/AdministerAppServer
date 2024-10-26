@@ -188,7 +188,7 @@ async def report_version(req: Request):
     key = db.get(round(time.time() / 86400), db.REPORTED_VERSIONS)
     branch = str(json["branch"]).lower()
 
-    if not json["version"] in config.ACCEPTED_ADMINISTER_VERSIONS:
+    if not json["version"] in config["ACCEPTED_ADMINISTER_VERSIONS"]:
         return JSONResponse({"code": 400, "message": "Unsupported version, please update Administer"}, status_code=400)
 
     if not key:
