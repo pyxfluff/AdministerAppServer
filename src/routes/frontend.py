@@ -12,7 +12,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 root = Path(__file__).parents[1]
-day = round(time() / 86400)
+# day = round(time() / 86400)
+day = 0
 
 @app.get("/")
 def index(req: Request):
