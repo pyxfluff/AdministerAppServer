@@ -19,7 +19,7 @@ day = 0
 def index(req: Request):
     global day
 
-    if not day == round(time() / 86400):
+    if day != round(time() / 86400):
         day = round(time() / 86400)
         daily_report(db)
 

@@ -113,5 +113,19 @@ class RateLimiter(BaseHTTPMiddleware):
 
         return await call_next(request)
     
+class Logger(BaseHTTPMiddleware):
+    async def dispatch(self, req: Request, call_next: FunctionType) -> Response:
+        cf_ip = req.headers.get("CF-Connecting-IP")
+
+        print(f"<-- [{cf_ip}]{roblox_lock and (f" (PID {req.headers.get("Roblox-Id")})") or ""} {req.method} {req.url} | {time.time()}")
+
+        t = time.time()
+        res = await call_next(req)
+
+        print(f"--> {res.status_code} in {time.time() - t:.6f}s")
+
+        return res
+
 src.app.add_middleware(AuthMiddleware)
 src.app.add_middleware(RateLimiter)
+src.app.add_middleware(Logger)
