@@ -38,7 +38,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return JSONResponse({"code": 400, "message": "Sorry, but your IP has been blocked due to suspected abuse. Please reach out if this was a mistake."}, status_code=400)
 
         if roblox_lock:
-            if request.url in ["http://administer.notpyx.me/", "https://administer.notpyx.me/", "http://127.0.0.1:8000/"] \
+            if request.url in ["http://administer.notpyx.me/", "https://administer.notpyx.me/", "http://127.0.0.1:8000/", "https://administer.notpyx.me/.administer/server"] \
                     or str(request.url).split("/")[3] in ["logs", "css", "scss", "js", "img"]:
                 return await call_next(request)
             
@@ -47,6 +47,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             
             if request.headers.get("CF-Connecting-IP") in known_good_ips:
                 # all is well
+                print("This IP is known good!")
                 return await call_next(request)
             
             elif "RobloxStudio" in request.headers.get("user-agent"):
@@ -92,6 +93,7 @@ class RateLimiter(BaseHTTPMiddleware):
         cf_ip = request.headers.get("CF-Connecting-IP")
 
         if cf_ip in mem_blocked_ips:
+            print("This IP is blocked in memory.")
             return Response(status_code=400, content="Sorry, you have been blocked. If you believe this is in error please reach out.")
 
         if not cf_ip:
@@ -105,6 +107,7 @@ class RateLimiter(BaseHTTPMiddleware):
         ]
 
         if len(limited_ips[cf_ip]) >= rate_limit_reqs:
+            print("Rate limit exceeded")
             return Response(status_code=429, content="Too many requests. Try again later. Do NOT refresh this page or else you will be blocked.")
 
         limited_ips[cf_ip].append(time.time())
