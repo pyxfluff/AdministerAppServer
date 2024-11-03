@@ -14,6 +14,7 @@ import httpx
 import platform
 
 from io import BytesIO
+from sys import version
 
 from src.database import db
 from src.models.RatingPayload import RatingPayload
@@ -27,6 +28,8 @@ roblox_lock = not "zen" in platform.release()
 blocked_users = db.get("__BLOCKED_USERS__", db.API_KEYS)
 blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
 forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
+
+sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 @app.get("/app/{appid:int}")
 async def get_app(appid: int):
@@ -208,3 +211,19 @@ async def report_version(req: Request):
     db.set(round(time.time() / 86400), key, db.REPORTED_VERSIONS)
 
     return JSONResponse({"code": 200, "message": "Version has been recorded"}, status_code=200)
+
+@app.get("/.administer/server")
+async def verify_administer_server():
+    return JSONResponse({
+        "status": "OK",
+        "code": 200,
+        "server": "AdministerAppServer",
+        "uptime": time.time() - t,
+        "engine": version,
+        "system": sys_string,
+        "app_server_api_version": __version__,
+        "target_administer_version": "1.0",
+        "known_apps": len(db.get_all(db.APPS)),
+        "banner": db.get("administer_banner", db.APPS),
+        "banner_color": "#fffff"
+    }, status_code=200)
