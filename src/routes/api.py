@@ -15,6 +15,7 @@ import platform
 
 from io import BytesIO
 from sys import version
+from Levenshtein import ratio
 
 from src.database import db
 from src.models.RatingPayload import RatingPayload
@@ -166,9 +167,52 @@ async def app_list():
 
     return JSONResponse(final, status_code=200)
 
-@app.get("/query/{search}")
+@app.get("/rich-search/{search}")
 async def search(req: Request, search: str):
-    return db.raw_find_all({"AppName": search.lower()}, db.APPS)
+    apps = db.get_all(db.APPS)
+    final = []
+    ratio_info = {"IsRatio": False}
+
+    for app in apps:
+        app = app["data"]
+        del app["AppInstalls"]
+
+        if search in app["AppTitle"]:
+            app["IndexedBecause"] = "Name"
+            final.append(app)
+
+            continue
+        elif ratio(search, app["AppName"]) >= .85:
+            app["IndexedBecause"] = "NameRatio"
+            ratio_info = {"IsRatio": True, "RatioKeyword": app["AppName"], "RatioConfidence": ratio(search, app["AppName"])}
+            final.append(app)
+
+            continue
+
+        for tag in app["AppTags"]:
+            if search in tag:
+                app["IndexedBecause"] = "Tag"
+                final.append(app)
+
+                continue
+            elif ratio(search, tag) >= .85:
+                app["IndexedBecause"] = "NameRatio"
+                ratio_info = {"IsRatio": True, "RatioKeyword": tag, "RatioConfidence": ratio(search, tag)}
+                final.append(app)
+
+                continue
+    
+    if final == []:
+        return JSONResponse({
+            "SearchIndex": "NoResultsFound",
+            "RichSearchAPI": "2.0"
+        }, status_code = 200)
+
+    return JSONResponse({
+        "SearchIndex": final,
+        "RatioInfo": ratio_info,
+        "RichSearchAPI": "2.0"
+    }, status_code = 200)
 
 @app.get("/misc-api/prominent-color")
 async def get_prominent_color(image_url: str):
