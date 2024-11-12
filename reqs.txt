@@ -5,3 +5,4 @@ pathlib
 colorthief
 urllib
 httpx
+Levenshtein
