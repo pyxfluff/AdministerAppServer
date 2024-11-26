@@ -256,6 +256,41 @@ async def report_version(req: Request):
 
     return JSONResponse({"code": 200, "message": "Version has been recorded"}, status_code=200)
 
+import matplotlib.pyplot as plt
+
+start = 20041
+x, y, fy = [], [], []
+
+data = db.get_all(db.REPORTED_VERSIONS)
+
+print(data)
+
+for day in data:
+    try:
+        z = day["data"]["live"]
+    except KeyError:
+        continue
+
+    x.append(day["administer_id"])
+    y.append(day["data"]["live"])
+
+y2 = [item.get('1.2', 0) for item in y]
+y3 = [item.get('1.2.1', 0) for item in y]
+y = [item.get('1.1.1', 0) for item in y]
+
+plt.plot(x, y, marker='o')
+plt.plot(x, y2, marker='*')
+plt.plot(x, y3, marker='o')
+
+# Add labels and title
+plt.ylabel("Place Starts")
+plt.xlabel("Day (Unix time)")
+plt.title("Administer usage over the LIVE branch")
+plt.legend(["1.1.1", "1.2", "1.2.1"])
+
+# Show the plot
+plt.show()
+
 @app.get("/.administer/server")
 async def verify_administer_server():
     return JSONResponse({
