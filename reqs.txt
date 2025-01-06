@@ -6,3 +6,5 @@ colorthief
 urllib
 httpx
 Levenshtein
+
+git+https://github.com/iiPythonx/il

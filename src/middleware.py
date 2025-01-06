@@ -1,5 +1,7 @@
 # pyxfluff 2024
 
+from http import HTTPStatus
+from il import request as log_req
 from fastapi import Response, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -120,12 +122,18 @@ class Logger(BaseHTTPMiddleware):
     async def dispatch(self, req: Request, call_next: FunctionType) -> Response:
         cf_ip = req.headers.get("CF-Connecting-IP")
 
-        print(f"<-- [{cf_ip}]{roblox_lock and (f" (PID {req.headers.get("Roblox-Id")})") or ""} {req.method} {req.url} | {time.time()}")
-
         t = time.time()
         res = await call_next(req)
 
-        print(f"--> {res.status_code} in {time.time() - t:.6f}s")
+        log_req(
+            str(req.url),
+            req.headers.get("CF-Connecting-IP"),
+            f"Code {res.status_code} ({HTTPStatus(res.status_code).phrase})",
+            str(res.status_code).startswith("2") and 32 or 31,
+            time.time() - t,
+            f"PlaceID: {req.headers.get("Roblox-Id") or "Not a Roblox place"}",
+            req.method 
+        )
 
         return res
 
