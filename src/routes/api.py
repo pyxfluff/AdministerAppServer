@@ -1,9 +1,8 @@
 # pyxfluff 2024
 
-from src import __version__, app
+from src import __version__, app, accepted_versions, is_dev
 from ..color_detection import get_color
 from ..helpers import request_app
-from ..config import config
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -23,8 +22,6 @@ from src.models.RatingPayload import RatingPayload
 import src
 
 t = time.time()
-
-roblox_lock = not "zen" in platform.release()
 
 blocked_users = db.get("__BLOCKED_USERS__", db.API_KEYS)
 blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
@@ -216,7 +213,7 @@ async def search(req: Request, search: str):
 
 @app.get("/misc-api/prominent-color")
 async def get_prominent_color(image_url: str):
-    if not roblox_lock:
+    if is_dev:
         return get_color(BytesIO(httpx.get(image_url).content))
     else: 
         # prevent vm IP leakage
@@ -235,8 +232,8 @@ async def report_version(req: Request):
     key = db.get(round(time.time() / 86400), db.REPORTED_VERSIONS)
     branch = str(json["branch"]).lower()
 
-    if not json["version"] in config["ACCEPTED_ADMINISTER_VERSIONS"]:
-        return JSONResponse({"code": 400, "message": "Unsupported version, please update Administer"}, status_code=400)
+    if not json["version"] in accepted_versions:
+        return JSONResponse({"code": 400, "message": "Unsupported version, please update Administer."}, status_code=400)
 
     if not key:
         key = {

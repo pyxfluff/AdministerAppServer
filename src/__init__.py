@@ -2,12 +2,19 @@
 
 import il
 import logging
+import platform
+
+from pathlib import Path
 from fastapi import FastAPI
 
 # meta
 __version__ = "3.1"
 requests = 0
 downloads_today = 0
+is_dev = "zen" in platform.release() 
+accepted_versions = ["1.1.1", "1.2", "1.2.1", "1.2.2", "1.2.3", "2.0"]
+
+il.set_log_file(is_dev and None or Path("/etc/adm/log"))
 
 il.box(30, f"Administer App Server {__version__}", "")
 il.cprint("[-] Loading Uvicorn...", 32)

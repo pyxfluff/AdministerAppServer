@@ -1,7 +1,7 @@
 # Copyright (c) 2023-2024 Codelet Team (pyxfluff / iiPythonx)
 
 # Modules
-import platform
+from src import is_dev
 from typing import Any, List, Dict
 
 from pymongo import MongoClient
@@ -16,7 +16,7 @@ class Database(object):
             setattr(self, db_item.upper(), db_item)
 
         # Connect to Mongo
-        client = MongoClient("zen" in platform.release() and "mongodb://mail.iipython.dev:27017" or "mongodb://127.0.0.1:27017", serverSelectionTimeoutMS = 15000)
+        client = MongoClient(is_dev and "mongodb://mail.iipython.dev:27017" or "mongodb://127.0.0.1:27017", serverSelectionTimeoutMS = 15000)
 
         self.db = client["administer"]  # administer database to hopefully not mess with codelet dev
 
