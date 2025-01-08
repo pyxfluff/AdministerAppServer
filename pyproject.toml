@@ -1,0 +1,22 @@
+[project]
+name = "administer-app-server"
+description = "Administer's primary App Server."
+version = "3.1"
+requires-python = "3.12<="
+authors = [{name = "pyxfluff", email = "business@notpyx.me"}]
+dependencies = [
+    "colorthief", # TODO: do we need this anymore?
+    "fastapi",
+    "httpx",
+    "Levenshtein",
+    "nanoid",
+    "orjson",
+    "pathlib",
+    "pymongo",
+    "uvicorn",
+
+    # Git packages
+    "git+https://github.com/iiPythonx/il"
+]
+
+urls.PrimaryServer = "https://administer.notpyx.me"

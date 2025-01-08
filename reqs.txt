@@ -1,9 +1,0 @@
-fastapi
-orjson
-nanoid
-pathlib
-colorthief
-httpx
-Levenshtein
-
-git+https://github.com/iiPythonx/il
