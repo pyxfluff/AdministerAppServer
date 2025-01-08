@@ -3,7 +3,6 @@ orjson
 nanoid
 pathlib
 colorthief
-urllib
 httpx
 Levenshtein
 
