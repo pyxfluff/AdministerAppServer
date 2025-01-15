@@ -11,32 +11,32 @@ from fastapi import FastAPI
 __version__ = "3.1"
 requests = 0
 downloads_today = 0
-is_dev = "zen" in platform.release() 
+is_dev = "zen" in platform.release() # TODO: More robust detection system; not *every* dev instance will be Linux Zen.
 accepted_versions = ["1.1.1", "1.2", "1.2.1", "1.2.2", "1.2.3", "2.0"]
 # default_app = { Metadata: {GeneratedAt: int, UpdatedAt: int, AppAPIPreferredVersion: int, AppVersion: number, IsOld: bool, AdministerID: number }, Developer: {  }}
 default_app = {  }
 
-print(is_dev)
-
-#il.set_log_file(not is_dev and Path("/etc/adm/log") or None)
+if not is_dev:
+    il.set_log_file(Path("/etc/adm/log"))
+    logging.getLogger("uvicorn.error").disabled = True
 
 il.box(30, f"Administer App Server {__version__}", "")
 il.cprint("[-] Loading Uvicorn...", 32)
 app = FastAPI(
     # Meta
-    debug=False,
+    debug=is_dev,
     title=f"Administer App Server {__version__}",
-    description="An Administer app server instance for distributing Apps.",
+    description="An Administer app server instance for distributing Administer applications.",
     version=__version__,
 
     # Disable docs
     openapi_url=None
 )
 
-il.cprint( f"[✓] Uvicorn loaded", 32)
 logging.getLogger("uvicorn").disabled = True
-logging.getLogger("uvicorn.error").disabled = True
 logging.getLogger("uvicorn.access").disabled = True
+
+il.cprint( f"[✓] Uvicorn loaded", 32)
 il.cprint(f"[-] Importing modules...", 32)
 
 from .routes import api, frontend, public_api

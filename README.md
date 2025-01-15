@@ -20,7 +20,7 @@ We are working on improvements to this system (installation script, central conf
 
 - Install MongoDB, uv, and Python 3.13.
 - Clone the repository and put your MongoDB URL in the src/database.py file. You'll also need to generate a security key and set it in the SECRETS db.
-- Run `uv new`, enter the newly created enviornment, and run `uv pip install`. 
+- Run `uv venv`, enter the newly created enviornment with `source .venv/bin/activate`, and run `uv pip install .`. 
 
 <!-- TODO: app server docs? -->
 ... and you're done! Just run `uvicorn src:app` and you'll be up and running. To create test apps, use the `/app-config/upload` endpoint. For more information, read [the documentation]() 
