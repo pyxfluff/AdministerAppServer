@@ -35,7 +35,7 @@ app = FastAPI(
 
 il.cprint( f"[✓] Uvicorn loaded", 32)
 logging.getLogger("uvicorn").disabled = True
-#logging.getLogger("uvicorn.error").disabled = True
+logging.getLogger("uvicorn.error").disabled = True
 logging.getLogger("uvicorn.access").disabled = True
 il.cprint(f"[-] Importing modules...", 32)
 
