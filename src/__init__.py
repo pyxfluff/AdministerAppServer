@@ -40,7 +40,12 @@ logging.getLogger("uvicorn.access").disabled = True
 il.cprint( f"[✓] Uvicorn loaded", 32)
 il.cprint(f"[-] Importing modules...", 32)
 
-from .routes import api, frontend, public_api
+# Do not touch these imports, idk why theyre so broken but they work in this state.
+
+from .routes import api
+from .routes import public_api
+from .routes import frontend
+
 from . import middleware
 
 il.cprint("[✓] Done! This app server is now being served on http://0.0.0.0:8000.", 32)
