@@ -262,22 +262,6 @@ async def report_version(req: Request):
 
     return JSONResponse({"code": 200, "message": "Version has been recorded"}, status_code=200)
 
-@app.get("/.administer/server")
-async def verify_administer_server():
-    return JSONResponse({
-        "status": "OK",
-        "code": 200,
-        "server": "AdministerAppServer",
-        "uptime": time.time() - t,
-        "engine": version,
-        "system": sys_string,
-        "app_server_api_version": __version__,
-        "target_administer_version": "1.0",
-        "known_apps": len(db.get_all(db.APPS)),
-        "banner": db.get("administer_banner", db.APPS),
-        "banner_color": "#fffff"
-    }, status_code=200)
-
 @app.post("/app-config/upload")
 async def app_config(req: Request):
     config: {} = await req.json()

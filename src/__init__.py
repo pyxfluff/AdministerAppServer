@@ -13,6 +13,7 @@ requests = 0
 downloads_today = 0
 is_dev = "zen" in platform.release() # TODO: More robust detection system; not *every* dev instance will be Linux Zen.
 accepted_versions = ["1.1.1", "1.2", "1.2.1", "1.2.2", "1.2.3", "2.0"]
+whitelist = ["logs", "css", "scss", "js", "img", "download-count", ".administer", "to"]
 # default_app = { Metadata: {GeneratedAt: int, UpdatedAt: int, AppAPIPreferredVersion: int, AppVersion: number, IsOld: bool, AdministerID: number }, Developer: {  }}
 default_app = {  }
 

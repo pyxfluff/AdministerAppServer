@@ -19,10 +19,10 @@ t = time.time()
 @app.get("/.administer/server")
 async def verify_administer_server():
     return JSONResponse({
-        "code": 200,
         "status": "OK",
-        "uptime": time.time() - t,
+        "code": 200,
         "server": "AdministerAppServer",
+        "uptime": time.time() - t,
         "engine": version,
         "system": sys_string,
         "app_server_api_version": __version__,
@@ -31,3 +31,12 @@ async def verify_administer_server():
         "banner": db.get("administer_banner", db.APPS),
         "banner_color": "#fffff"
     }, status_code=200)
+
+@app.get("/to/<path:path>")
+def social_to(req: Request, path):
+    match str(path).split("/")[3]:
+        case "discord":
+            return RedirectResponse("https://discord.gg/3Q8xkcBT3M")
+        case "git":
+            # TODO (pyxfluff): git, i'm not doing query params work without intellisense lmao
+            print(path)

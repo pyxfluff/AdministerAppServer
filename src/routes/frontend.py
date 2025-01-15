@@ -25,15 +25,6 @@ def index(req: Request):
 
     return FileResponse(root / "frontend" / "index.html")
 
-@app.get("/to/<path:path>")
-def social_to(req: Request, path):
-    match path:
-        case "discord":
-            return RedirectResponse("https://discord.gg/3Q8xkcBT3M")
-        case "git":
-            # TODO (pyxfluff): git, i'm not doing query params work without intellisense lmao
-            pass
-
 
 for mount in [
     ("/", StaticFiles(directory = root / "frontend")),

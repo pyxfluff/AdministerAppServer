@@ -47,8 +47,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return JSONResponse({"code": 401, "message": "Bad authorization."}, 401)
 
         if roblox_lock:
-            if request.url in ["http://administer.notpyx.me/", "https://administer.notpyx.me/", "http://127.0.0.1:8000/", "https://administer.notpyx.me/.administer/server"] \
-                    or str(request.url).split("/")[3] in ["logs", "css", "scss", "js", "img", "download-count"]:
+            if request.url in ["http://administer.notpyx.me/", "https://administer.notpyx.me/", "http://127.0.0.1:8000/"] \
+                    or str(request.url).split("/")[3] in src.whitelist:
                 return await call_next(request)
             
             if not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
