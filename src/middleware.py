@@ -34,14 +34,21 @@ blocked_users = db.get("__BLOCKED_USERS__", db.API_KEYS)
 blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
 forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
+auth_key = db.get("__ENV_AUTH__", db.SECRETS)
+
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
         if request.headers.get("CF-Connecting-IP") in forbidden_ips:
             return JSONResponse({"code": 400, "message": "Sorry, but your IP has been blocked due to suspected abuse. Please reach out if this was a mistake."}, status_code=400)
+        
+        if str(request.url).split("/")[3] == "app-config" and request.headers.get("X-Adm-Auth", "") == auth_key:
+            return await call_next(request)
+        elif str(request.url).split("/")[3] == "app-config" and request.headers.get("X-Adm-Auth", "") == "":
+            return JSONResponse({"code": 401, "message": "Bad authorization."}, 401)
 
         if roblox_lock:
             if request.url in ["http://administer.notpyx.me/", "https://administer.notpyx.me/", "http://127.0.0.1:8000/", "https://administer.notpyx.me/.administer/server"] \
-                    or str(request.url).split("/")[3] in ["logs", "css", "scss", "js", "img"]:
+                    or str(request.url).split("/")[3] in ["logs", "css", "scss", "js", "img", "download-count"]:
                 return await call_next(request)
             
             if not request.headers.get("Roblox-Id") and not request.url == "http://administer.notpyx.me/":
@@ -49,7 +56,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
             
             if request.headers.get("CF-Connecting-IP") in known_good_ips:
                 # all is well
-                print("This IP is known good!")
                 return await call_next(request)
             
             elif "RobloxStudio" in request.headers.get("user-agent"):

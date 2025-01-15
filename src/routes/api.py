@@ -1,6 +1,6 @@
 # pyxfluff 2024
 
-from src import __version__, app, accepted_versions, is_dev
+from src import __version__, app, accepted_versions, is_dev, default_app
 from ..color_detection import get_color
 from ..helpers import request_app
 
@@ -28,6 +28,15 @@ blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
 forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
+
+@app.get("/download-count")
+async def download_stats():
+    return JSONResponse({
+        "schemaVersion": 1,
+        "label": "Administer Downloads",
+        "message": request_app(1)["AppDownloadCount"],
+        "color": "orange"  
+    })
 
 @app.get("/app/{appid:int}")
 async def get_app(appid: int):
@@ -268,3 +277,12 @@ async def verify_administer_server():
         "banner": db.get("administer_banner", db.APPS),
         "banner_color": "#fffff"
     }, status_code=200)
+
+@app.post("/app-config/upload")
+async def app_config(req: Request):
+    config: {} = await req.json()
+    id = config.get("Metadata", {}).get("AdministerID", len(db.get_all(db.APPS)))
+    existing = db.get(id, db.APPS) or default_app
+        
+
+    print(config)
