@@ -34,7 +34,7 @@ async def download_stats():
     return JSONResponse({
         "schemaVersion": 1,
         "label": "Administer Downloads",
-        "message": request_app(1)["AppDownloadCount"],
+        "message": str(request_app(1)["AppDownloadCount"]),
         "color": "orange"  
     })
 
