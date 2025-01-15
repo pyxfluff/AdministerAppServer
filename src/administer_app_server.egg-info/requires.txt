@@ -1,9 +1,0 @@
-colorthief
-fastapi
-httpx
-Levenshtein
-nanoid
-orjson
-pathlib
-pymongo
-uvicorn

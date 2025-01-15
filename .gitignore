@@ -6,3 +6,6 @@ EXAMPLE_APP_JSON.json
 upload_apps.py
 
 src/reporting
+
+build/
+src/administer_app_server.egg-info/

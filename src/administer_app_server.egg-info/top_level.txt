@@ -1,8 +1,0 @@
-__init__
-color_detection
-database
-frontend
-helpers
-middleware
-models
-routes
