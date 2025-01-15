@@ -16,7 +16,7 @@ dependencies = [
     "uvicorn",
 
     # Git packages
-    "git+https://github.com/iiPythonx/il"
+    #"git+https://github.com/iiPythonx/il"
 ]
 
 urls.PrimaryServer = "https://administer.notpyx.me"
