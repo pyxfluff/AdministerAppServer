@@ -40,6 +40,22 @@ To ensure platform safety, we may log requests if you attempt to misuse our API;
 
 If you believe you were wrongly flagged and recieved a "This incidient will be reported" message in error, please [contact us](mailto:administer-team@notpyx.me) to resolve the issue and remove your information from our logs.
 
+The only information we include by default is your Administer version for analytics. It is stored in aggregate and your Roblox Place ID is not associated with any data. For example, we **do** collect:
+
+- Aggregate counts of every place in the database (for knowing how many users we have overall)
+- Administer version data from every panel (for knowing how new versions are being adopted and if its safe to remove old AOS features)
+- Individual place IDs and what apps you installed and have votes for (This is **never** read by any staff manually or automatically. Eventually we are looking to encrypt this data.)
+
+We do **not collect**:
+
+- How many times your individual game uses Administer
+- The commands/apps you regularly use
+- Your usage of Administer features, settings, apps, etc.
+- Your game's admin/rank structure
+- Any other information from your game or Administer
+
+If we change this policy (for example opt-in detailed analytics, comments on apps, ...), you will be notified via the Discord server, panel (if it's significant), and other appropriate channels.
+
 ## Contributions
 
 We welcome contributions as long as they are meaningful. Please ensure you are familiar with our code standards and libraries before making pull requests. For larger changes, you may want to [discuss a change in our Discord beforehand.](https://administer.notpyx.me/to/discord)
