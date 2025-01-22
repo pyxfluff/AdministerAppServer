@@ -37,8 +37,8 @@ app = FastAPI(
 logging.getLogger("uvicorn").disabled = True
 logging.getLogger("uvicorn.access").disabled = True
 
-il.cprint( f"[✓] Uvicorn loaded", 32)
-il.cprint(f"[-] Importing modules...", 32)
+il.cprint("[✓] Uvicorn loaded", 32)
+il.cprint("[-] Importing modules...", 32)
 
 # Do not touch these imports, idk why theyre so broken but they work in this state.
 
