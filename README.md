@@ -27,6 +27,8 @@ We are working on improvements to this system (installation script, central conf
 
 ## Central Server Privacy
 
+*Last Modified: 1/18/25*
+
 Administer is designed with privacy as a top priority. We only collect the data necessary to operate this service, and this data is never accessed by anyone other than the system itself. All information is securely stored in an internal MongoDB instance and is never read, shared, or sold by Administer staff. Specifically, we only collect your **Roblox Place ID** and the apps you install to ensure safety for the rating system.
 
 To ensure platform safety, we may log requests if you attempt to misuse our API; for example, creating fake places, impersonating a game server, or engaging in other forms of abuse. In such cases, we will log the following information:
