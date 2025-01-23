@@ -1,6 +1,7 @@
 # pyxfluff 2024
 
 import il
+import asyncio
 import logging
 import platform
 
@@ -41,7 +42,6 @@ il.cprint("[✓] Uvicorn loaded", 32)
 il.cprint("[-] Importing modules...", 32)
 
 # Do not touch these imports, idk why theyre so broken but they work in this state.
-
 from .routes import api
 from .routes import public_api
 from .routes import frontend
@@ -49,3 +49,7 @@ from .routes import frontend
 from . import middleware
 
 il.cprint("[✓] Done! This app server is now being served on http://0.0.0.0:8000.", 32)
+
+from .release_bot import bot, token
+
+asyncio.gather(bot.start(token))

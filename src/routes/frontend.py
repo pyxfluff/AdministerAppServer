@@ -1,8 +1,13 @@
 # pyxfluff 2024-2025
 
-from .. import app
+from .. import app, is_dev
 from src.database import db
-from src.reporting.report import daily_report
+
+if not is_dev:
+    from src.reporting.report import daily_report
+else:
+    def daily_report(db):
+        print("[x] Request to spawn daily report ignored due to missing modules")
 
 from time import time
 from pathlib import Path
@@ -16,12 +21,12 @@ root = Path(__file__).parents[1]
 day = 0
 
 @app.get("/")
-def index(req: Request):
+async def index(req: Request):
     global day
 
     if day != round(time() / 86400):
         day = round(time() / 86400)
-        daily_report(db)
+        (is_dev) and print("Ignoring reporting request, this will go through on prod") or daily_report(db)
 
     return FileResponse(root / "frontend" / "index.html")
 

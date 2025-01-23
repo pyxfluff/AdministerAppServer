@@ -5,7 +5,10 @@ import re
 import discord
 from discord.ext import commands
 
+from .database import db
+
 bot = commands.Bot(intents=discord.Intents.all())
+token = db.get("VERSION_BOT", db.SECRETS)
 
 # TODO: Temp variables while I don't; have direct DB access
 
@@ -36,6 +39,3 @@ async def on_connect():
 @bot.event
 async def on_error(loc):
     il.cprint(f"[x] In version bot thread {loc}: {""}", 32)
-
-# REPLACE BEFORE PUSHING
-# bot.run(db.get("VERSION_BOT", db.SECRETS))
