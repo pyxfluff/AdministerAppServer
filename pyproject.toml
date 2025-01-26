@@ -3,9 +3,9 @@ name = "administer-app-server"
 description = "Administer's primary App Server."
 version = "3.1"
 requires-python = ">=3.12"
-authors = [{name = "pyxfluff", email = "business@notpyx.me"}]
+authors = [{ name = "pyxfluff", email = "business@notpyx.me" }]
 dependencies = [
-    "colorthief", # TODO: do we need this anymore?
+    "colorthief",  # TODO: do we need this anymore?
     "fastapi",
     "httpx",
     "Levenshtein",
@@ -20,7 +20,7 @@ dependencies = [
     #"git+https://github.com/iiPythonx/il"
 
     # Development
-    "matplotlib"
+    "matplotlib",
 ]
 
 urls.PrimaryServer = "https://administer.notpyx.me"
