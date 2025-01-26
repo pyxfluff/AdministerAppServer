@@ -14,9 +14,13 @@ dependencies = [
     "pathlib",
     "pymongo",
     "uvicorn",
+    "py-cord",
+
     # Git packages
     #"git+https://github.com/iiPythonx/il"
-    "py-cord",
+
+    # Development
+    "matplotlib"
 ]
 
 urls.PrimaryServer = "https://administer.notpyx.me"
