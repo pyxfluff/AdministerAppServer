@@ -12,7 +12,7 @@ __version__ = "4.0.0-dev"
 #    "zen" in platform.release()
 #)  # TODO: More robust detection system; not *every* dev instance will be Linux Zen.
 is_dev = True # TODO remove
-accepted_versions = ["2.0"]
+accepted_versions = ["2.0.0"]
 
 default_app = {}
 requests = 0
