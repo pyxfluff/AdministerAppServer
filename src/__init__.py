@@ -18,6 +18,8 @@ default_app = {}
 requests = 0
 downloads_today = 0
 
+whitelist = ["logs", "css", "scss", "js", "img", "download-count", ".administer", "to"]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

@@ -65,6 +65,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 in [
                     "http://administer.notpyx.me/",
                     "https://administer.notpyx.me/",
+                    "https://adm_unstable.notpyx.me/"
                     "http://127.0.0.1:8000/",
                 ]
                 or str(request.url).split("/")[3] in src.whitelist

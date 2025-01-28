@@ -21,6 +21,7 @@ dependencies = [
 
     # Development
     "matplotlib",
+    "audioop-lts"
 ]
 
 urls.PrimaryServer = "https://administer.notpyx.me"
