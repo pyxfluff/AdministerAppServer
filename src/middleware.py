@@ -16,7 +16,7 @@ from collections import defaultdict
 from src.database import db
 import src
 
-roblox_lock = src.is_dev
+roblox_lock = not src.is_dev
 
 rate_limit_reqs = 30
 rate_limit_reset = 150
