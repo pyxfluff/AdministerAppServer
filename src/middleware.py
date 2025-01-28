@@ -16,7 +16,7 @@ from collections import defaultdict
 from src.database import db
 import src
 
-roblox_lock = not "zen" in platform.release()
+roblox_lock = src.is_dev
 
 rate_limit_reqs = 30
 rate_limit_reset = 150
