@@ -8,9 +8,10 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 __version__ = "4.0.0-dev"
-is_dev = (
-    "zen" in platform.release()
-)  # TODO: More robust detection system; not *every* dev instance will be Linux Zen.
+#is_dev = (
+#    "zen" in platform.release()
+#)  # TODO: More robust detection system; not *every* dev instance will be Linux Zen.
+is_dev = True # TODO remove
 accepted_versions = ["2.0"]
 
 default_app = {}
