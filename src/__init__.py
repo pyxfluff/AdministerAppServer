@@ -33,7 +33,6 @@ async def lifespan(app: FastAPI):
         il.cprint("[✗] Goodbye, shutting things off...", 31)
 
 app = FastAPI(
-    # Meta
     debug=is_dev,
     title=f"Administer App Server {__version__}",
     description="An Administer app server instance for distributing Administer applications.",

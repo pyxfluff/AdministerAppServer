@@ -20,7 +20,7 @@ if not is_dev:
 il.box(45, f"Administer App Server", f"v{__version__}")
 il.cprint("[-] Loading Uvicorn...", 32)
 
-config = Config(app=app, host=argv[1], port=int(argv[2]))
+config = Config(app=app, host=argv[1], port=int(argv[2]), workers=8)
 
 logging.getLogger("uvicorn").disabled = True
 logging.getLogger("uvicorn.access").disabled = True
