@@ -31,9 +31,10 @@ forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 
 router = APIRouter()
+asset_router = APIRouter(prefix="/asset")
 
 
-@router.get("/download-count")
+@router.get("/get_download_count")
 async def download_stats():
     return JSONResponse(
         {
@@ -45,7 +46,7 @@ async def download_stats():
     )
 
 
-@router.get("/app/{appid:int}")
+@asset_router.get("/{appid:int}")
 async def get_app(appid: int):
     try:
         app = request_app(appid)
@@ -60,14 +61,14 @@ async def get_app(appid: int):
             {
                 "code": 404,
                 "message": "not-found",
-                "user_facing_message": "This app wasn't found. Maybe it was deleted while you were viewing it?",
+                "user_facing_message": "This asset wasn't found. Maybe it was deleted while you were viewing it?",
             },
             status_code=404,
         )
 
 
-@router.post("/rate/{app_id}")
-async def rate_app(req: Request, app_id: str, payload: RatingPayload):
+@asset_router.put("/{asset_id}/vote")
+async def rate_app(req: Request, asset_id: str, payload: RatingPayload):
     if "RobloxStudio" in req.headers.get("user-agent"):
         return JSONResponse(
             {
@@ -79,7 +80,8 @@ async def rate_app(req: Request, app_id: str, payload: RatingPayload):
         )
 
     place = db.get(req.headers.get("Roblox-Id"), db.PLACES)
-    rating = payload.Rating
+    rating = payload.vote == 1
+    is_overwrite = False
 
     if not place:
         return JSONResponse(
@@ -91,7 +93,7 @@ async def rate_app(req: Request, app_id: str, payload: RatingPayload):
             status_code=400,
         )
 
-    if app_id not in place["apps"]:
+    if asset_id not in place["apps"]:
         return JSONResponse(
             {
                 "code": 400,
@@ -101,7 +103,7 @@ async def rate_app(req: Request, app_id: str, payload: RatingPayload):
             status_code=400,
         )
 
-    app = request_app(app_id)
+    app = request_app(asset_id)
     if not app:
         return JSONResponse(
             {
@@ -112,33 +114,38 @@ async def rate_app(req: Request, app_id: str, payload: RatingPayload):
             status_code=404,
         )
 
-    if app_id in place["ratings"]:
-        place["ratings"][app_id] = None
-        app[rating and "AppLikes" or "AppDislikes"] -= 1
+    if asset_id in place["ratings"]:
         print("Overwriting rating.")
+        is_overwrite = True
 
-    place["ratings"][app_id] = {
+        app["ratings"][
+            place["ratings"][asset_id]["rating"] == 1 and "likes" or "dislikes"
+        ] -= 1
+        place["ratings"][asset_id] = None
+
+    place["ratings"][asset_id] = {
         "rating": rating,
         "owned": True,
         "timestamp": time.time(),
     }
-    app[rating and "AppLikes" or "AppDislikes"] += 1
 
-    db.set(app_id, app, db.APPS)
+    app["ratings"][rating and "likes" or "dislikes"] += 1
+
+    db.set(asset_id, app, db.APPS)
     db.set(req.headers.get("Roblox-Id"), place, db.PLACES)
 
     return JSONResponse(
         {
             "code": 200,
-            "message": "success",
-            "user_facing_message": "Your review has been recoded, thanks for voting!",
+            "message": f"success{is_overwrite and "_re-recorded" or ""}",
+            "user_facing_message": f"Your review has been recoded, thanks for voting!{is_overwrite and "We removed your previous rating for this asset."}",
         },
         status_code=200,
     )
 
 
-@router.post("/install/{app_id}")
-async def install_app(req: Request, app_id: str):
+@asset_router.post("/{asset_id}/install")
+async def install_app(req: Request, asset_id: str):
     place = db.get(req.headers.get("Roblox-Id"), db.PLACES)
 
     if not place:
@@ -148,38 +155,38 @@ async def install_app(req: Request, app_id: str):
             "start_ts": time.time(),  # make it easier to catch abusers
             "start_source": (
                 "RobloxStudio" in req.headers.get("user-agent")
-                and "STUDIO"
+                    and "STUDIO"
                 or "RobloxApp" in req.headers.get("user-agent")
-                and "CLIENT"
+                    and "CLIENT"
                 or "UNKNOWN"
             ),
         }
 
-    app = request_app(app_id)
+    app = request_app(asset_id)
     if not app:
         return JSONResponse(
             {
                 "code": 404,
                 "message": "not-found",
-                "user_facing_message": "Could not find that app. Was it deleted?",
+                "user_facing_message": "That isn't a valid asset. Did it get removed?",
             },
             status_code=404,
         )
 
-    if app_id in place["apps"]:
+    if asset_id in place["apps"]:
         return JSONResponse(
             {
                 "code": 400,
-                "message": "bad-request",
-                "user_facing_message": "This resource may only be used once.",
+                "message": "resource-limited",
+                "user_facing_message": "You may only install an asset once.",
             },
             status_code=400,
         )
 
-    place["apps"].append(app_id)
-    app["AppDownloadCount"] += 1
+    place["apps"].append(asset_id)
+    app["downloads"] += 1
 
-    db.set(app_id, app, db.APPS)
+    db.set(asset_id, app, db.APPS)
     db.set(req.headers.get("Roblox-Id"), place, db.PLACES)
 
     src.downloads_today += 1
@@ -190,8 +197,8 @@ async def install_app(req: Request, app_id: str):
     )
 
 
-@router.get("/list")
-async def app_list():
+@router.get("/directory")
+async def app_list(req: Request, asset_type: str):
     apps = db.get_all(db.APPS)
     final = []
     _t = time.time()

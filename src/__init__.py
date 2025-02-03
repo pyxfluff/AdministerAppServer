@@ -11,7 +11,8 @@ __version__ = "4.0.0-dev"
 #is_dev = (
 #    "zen" in platform.release()
 #)  # TODO: More robust detection system; not *every* dev instance will be Linux Zen.
-is_dev = True # TODO remove
+is_dev = True
+db_override = False # Enable to force usage of the production DB
 accepted_versions = ["2.0.0"]
 
 default_app = {}

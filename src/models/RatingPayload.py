@@ -3,4 +3,5 @@
 from pydantic import BaseModel
 
 class RatingPayload(BaseModel):
-    Rating: int
+    vote: int
+    is_favorite: bool

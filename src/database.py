@@ -1,31 +1,48 @@
 # Copyright (c) 2023-2024 Codelet Team (pyxfluff / iiPythonx)
 
 # Modules
-from src import is_dev
+from src import is_dev, db_override
 from typing import Any, List, Dict
 
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+
 
 # Main database class
 class Database(object):
     def __init__(self) -> None:
 
         # Reference tables
-        for db_item in ["error_refs", "apps", "reported_versions", "api_keys", "places", "abuse_logs", "logs", "secrets"]:
+        for db_item in [
+            "error_refs",
+            "apps",
+            "reported_versions",
+            "api_keys",
+            "places",
+            "abuse_logs",
+            "logs",
+            "secrets",
+        ]:
             setattr(self, db_item.upper(), db_item)
 
-        # Connect to Mongo
-        client = MongoClient(is_dev and "mongodb://mail.iipython.dev:27017" or "mongodb://127.0.0.1:27017", serverSelectionTimeoutMS = 15000)
+        client = MongoClient(
+            is_dev
+            and "mongodb://mail.iipython.dev:27017"
+            or "mongodb://127.0.0.1:27017",
+            serverSelectionTimeoutMS=15000,
+        )
 
-        self.db = client["administer"]  # administer database to hopefully not mess with codelet dev
+        self.db = client [
+            is_dev and not db_override and "administer_dev" or "administer"
+        ]
 
-        # Test connection
         try:
             client.admin.command("ping")
 
         except ConnectionFailure as e:
-            print(f"Failed to connect to MongoDB within the required timeframe! Is Mongo running? Aborting startup...")
+            print(
+                "Failed to connect to MongoDB within the required timeframe! Is Mongo running? Aborting startup..."
+            )
             raise e
 
     def set(self, key: str | int, value: Any, db: str) -> None:
@@ -37,13 +54,11 @@ class Database(object):
 
         db = self.db[db]
 
-        # Fetch active document
         internal_document = {"administer_id": str(key)}
         active_document = db.find_one(internal_document)
         if active_document is not None:
             return db.update_one(
-                {"_id": active_document["_id"]},
-                {"$set": {"data": value}}
+                {"_id": active_document["_id"]}, {"$set": {"data": value}}
             )
 
         return db.insert_one(internal_document | {"data": value})
@@ -78,12 +93,19 @@ class Database(object):
         assert isinstance(keys, list), "keys must be a list! (try using db.delete())"
 
         self.db[db].delete_many({"administer_id": {"$in": keys}})
-    
+
     def get_all(self, db: str) -> dict:
-       return list(self.db[db].find())
-    
+        return list(self.db[db].find())
+
     def get_all_paged(self, db: str, limit: int, page: int) -> List[dict]:
-        return [d["data"] for d in list(self.db[db].aggregate([{"$skip": limit * (page - 1)}, {"$limit": limit}]))]
+        return [
+            d["data"]
+            for d in list(
+                self.db[db].aggregate(
+                    [{"$skip": limit * (page - 1)}, {"$limit": limit}]
+                )
+            )
+        ]
 
     # Wrappers for raw MongoDB operations
     def raw_insert(self, item: dict, db: str) -> None:
@@ -91,15 +113,16 @@ class Database(object):
 
     def raw_find(self, identifier: dict, db: str) -> dict:
         return self.db[db].find_one(identifier)
-    
+
     def raw_del(self, identifier: dict, db: str) -> dict:
         return self.db[db].delete_one(identifier)
-    
+
     def raw_purge(self, identifier: dict, db: str) -> dict:
         return self.db[db].delete_many(identifier)
 
     def raw_find_all(self, identifier: dict, db: str) -> List[dict]:
         return self.db[db].find(identifier)
 
+
 # Initialize db
-db = Database() 
+db = Database()

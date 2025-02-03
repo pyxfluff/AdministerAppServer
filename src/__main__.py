@@ -28,10 +28,11 @@ logging.getLogger("uvicorn.access").disabled = True
 il.cprint("[✓] Uvicorn loaded", 32)
 il.cprint("[-] Importing modules...", 32)
 
-from .routes.api import router as APIRouter
+from .routes.api import router as APIRouter, asset_router as AssetRouter
 from .routes.public_api import router as PublicRouter
 
 app.include_router(APIRouter, prefix="/api")
+app.include_router(AssetRouter, prefix="/api")
 
 app.include_router(PublicRouter, prefix="/pub")
 
@@ -39,6 +40,7 @@ from .routes import frontend
 from . import middleware
 
 from .release_bot import bot, token
+
 asyncio.gather(bot.start(token))
 
 if __name__ == "__main__":
