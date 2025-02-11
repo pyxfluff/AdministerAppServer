@@ -1,18 +1,21 @@
 # pyxfluff 2024 - 2025
 
 import il
+import sys
 import platform
 
 from sys import argv
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
+from builtins import BaseException
+
 __version__ = "4.0.0-dev"
 #is_dev = (
 #    "zen" in platform.release()
 #)  # TODO: More robust detection system; not *every* dev instance will be Linux Zen.
 is_dev = True
-db_override = False # Enable to force usage of the production DB
+db_override = True # Enable to force usage of the production DB
 accepted_versions = ["2.0.0"]
 
 default_app = {}
@@ -32,6 +35,12 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         il.cprint("[✗] Goodbye, shutting things off...", 31)
+
+class AOSError(Exception):
+    def __init__(self, message):
+        il.cprint(message, 31)
+        sys.exit(1)
+        
 
 app = FastAPI(
     debug=is_dev,

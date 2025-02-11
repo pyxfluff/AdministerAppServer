@@ -1,0 +1,19 @@
+Metadata-Version: 2.2
+Name: administer-app-server
+Version: 3.1
+Summary: Administer's primary App Server.
+Author-email: pyxfluff <business@notpyx.me>
+Project-URL: PrimaryServer, https://administer.notpyx.me
+Requires-Python: >=3.12
+License-File: LICENSE
+Requires-Dist: colorthief
+Requires-Dist: fastapi
+Requires-Dist: httpx
+Requires-Dist: Levenshtein
+Requires-Dist: nanoid
+Requires-Dist: orjson
+Requires-Dist: pathlib
+Requires-Dist: pymongo
+Requires-Dist: uvicorn
+Requires-Dist: py-cord
+Requires-Dist: matplotlib

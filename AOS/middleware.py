@@ -13,8 +13,8 @@ import platform
 from types import FunctionType
 from collections import defaultdict
 
-from src.database import db
-import src
+from AOS.database import db
+import AOS
 
 roblox_lock = not src.is_dev
 

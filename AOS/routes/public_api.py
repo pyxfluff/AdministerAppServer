@@ -1,6 +1,6 @@
 # pyxfluff 2024
 
-from src import __version__, accepted_versions, is_dev
+from AOS import __version__, accepted_versions, is_dev
 
 from fastapi.responses import JSONResponse, RedirectResponse
 
@@ -11,7 +11,7 @@ import platform
 from sys import version
 from fastapi import Request, APIRouter
 
-from src.database import db
+from AOS.database import db
 
 sys_string = f"{platform.system()} {platform.release()} ({platform.version()})"
 

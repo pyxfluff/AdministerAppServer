@@ -1,10 +1,10 @@
 # pyxfluff 2024-2025
 
 from .. import is_dev, app
-from src.database import db
+from AOS.database import db
 
 if not is_dev:
-    from src.reporting.report import daily_report
+    from AOS.reporting.report import daily_report
 else:
 
     def daily_report(db):

@@ -1,6 +1,6 @@
 # pyxfluff 2024
 
-from src import __version__, app, accepted_versions, is_dev, default_app
+from AOS import __version__, app, accepted_versions, is_dev, default_app
 from ..color_detection import get_color
 from ..helpers import request_app
 
@@ -17,10 +17,10 @@ from io import BytesIO
 from sys import version
 from Levenshtein import ratio
 
-from src.database import db
-from src.models.RatingPayload import RatingPayload
+from AOS.database import db
+from AOS.models.RatingPayload import RatingPayload
 
-import src
+import AOS
 
 t = time.time()
 
@@ -208,64 +208,78 @@ async def app_list(req: Request, asset_type: str):
 
         final.append(
             {
-                "AppName": app["AppName"],
-                "AppShortDescription": app["AppShortDescription"],
-                "AppDownloadCount": app["AppDownloadCount"],
+                "name": app["name"],
+                "short_desc": app["short_desc"],
+                "downloads": app["downloads"],
                 "AppRating": (
-                    (app["AppLikes"] + app["AppDislikes"]) == 0
-                    and "---%"
-                    or app["AppLikes"] / (app["AppLikes"] + app["AppDislikes"])
+                    (app["votes"]["likes"] + app["votes"]["dislikes"]) == 0
+                    and "--.--%"
+                    or app["votes"]["likes"] / (app["votes"]["likes"] + app["votes"]["Dislikes"])
                 ),
-                "AppDeveloperID": app.get("AppDeveloperID", 0),
-                "UpdatedAt": app["AppUpdatedUnix"],
-                "AppID": app["AdministerMetadata"]["AdministerID"],
-                "AppType": app["AppType"],
+                "developer": {
+                    "id": app.get("AppDeveloperID", 0),
+                },
+                "last_update": app["AppUpdatedUnix"],
+                "id": app["administer_metadata"]["id"],
+                "object_type": app["type"],
             }
         )
+
+    if final == []:
+        final = [
+            {
+                "object_type": "message",
+                "text": "This marketplace server does not have any objects with the requested type."
+            }
+        ]
 
     final.append({"processed_in": time.time() - _t})
 
     return JSONResponse(final, status_code=200)
 
 
-@router.get("/rich-search/{search}")
+@router.get("/search/{search}")
 async def search(req: Request, search: str):
     apps = db.get_all(db.APPS)
     final = []
-    ratio_info = {"IsRatio": False}
+    ratio_info = { "is_ratio": False }
+
+    if search in [ None, "", " " ]:
+        return JSONResponse(
+            {"index": "invalid_query", "search_api_v": "3.0"}, status_code=200
+        )
 
     for app in apps:
         app = app["data"]
-        del app["AppInstalls"]
 
-        if search in app["AppTitle"]:
-            app["IndexedBecause"] = "Name"
+        if search in app["title"]:
+            app["indexed"] = "name"
             final.append(app)
 
             continue
-        elif ratio(search, app["AppName"]) >= 0.85:
-            app["IndexedBecause"] = "NameRatio"
+        elif ratio(search, app["name"]) >= 0.85:
+            app["indexed"] = "name_ratio"
             ratio_info = {
-                "IsRatio": True,
-                "RatioKeyword": app["AppName"],
-                "RatioConfidence": ratio(search, app["AppName"]),
+                "is_ratio": True,
+                "keyword": app["name"],
+                "confidence": ratio(search, app["name"]),
             }
             final.append(app)
 
             continue
 
-        for tag in app["AppTags"]:
+        for tag in app["tags"]:
             if search in tag:
-                app["IndexedBecause"] = "Tag"
+                app["indexed"] = "tag"
                 final.append(app)
 
                 continue
             elif ratio(search, tag) >= 0.85:
-                app["IndexedBecause"] = "NameRatio"
+                app["indexed"] = "tag_ratio"
                 ratio_info = {
-                    "IsRatio": True,
-                    "RatioKeyword": tag,
-                    "RatioConfidence": ratio(search, tag),
+                    "is_ratio": True,
+                    "keyword": tag,
+                    "confidence": ratio(search, tag),
                 }
                 final.append(app)
 
@@ -273,18 +287,18 @@ async def search(req: Request, search: str):
 
     if final == []:
         return JSONResponse(
-            {"SearchIndex": "NoResultsFound", "RichSearchAPI": "2.0"}, status_code=200
+            {"index": "no_results", "search_api_v": "3.0"}, status_code=200
         )
 
     return JSONResponse(
-        {"SearchIndex": final, "RatioInfo": ratio_info, "RichSearchAPI": "2.0"},
+        {"index": final, "ratio_info": ratio_info, "search_api_v": "3.0"},
         status_code=200,
     )
 
 
-@router.get("/misc-api/prominent-color")
+@router.get("/misc/get_prominent_color")
 async def get_prominent_color(image_url: str):
-    if is_dev:
+    if not is_dev:
         return get_color(BytesIO(httpx.get(image_url).content))
     else:
         # prevent vm IP leakage
