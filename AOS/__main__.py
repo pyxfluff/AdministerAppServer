@@ -42,8 +42,10 @@ def serve_web_server():
 
     asyncio.gather(bot.start(token))
 
-    if __name__ == "__main__":
+    try:
         Server(config).run()
+    except KeyboardInterrupt:
+            il.cprint("[✓] Cleanup job OK", 31)
 
 def help_command():
     pass
@@ -52,8 +54,9 @@ def help_command():
 il.box(45, f"Administer App Server", f"v{__version__}")
 
 if __name__ != "__main__":
-    il.cprint("AOS is running as a module, disregarding.", 31)
+    # il.cprint("AOS is running as a module, disregarding.", 31)
     #return
+    pass
 
 try:
     _ = argv[1]
@@ -77,3 +80,7 @@ match argv[1]:
     case _:
         il.cprint("\n[x]: command not found, showing help", 31)
         help_command()
+
+def main():
+    # diseregard
+    pass

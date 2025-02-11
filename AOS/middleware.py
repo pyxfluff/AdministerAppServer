@@ -16,7 +16,7 @@ from collections import defaultdict
 from AOS.database import db
 import AOS
 
-roblox_lock = not src.is_dev
+roblox_lock = not AOS.is_dev
 
 rate_limit_reqs = 30
 rate_limit_reset = 150
@@ -68,7 +68,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     "https://adm_unstable.notpyx.me/"
                     "http://127.0.0.1:8000/",
                 ]
-                or str(request.url).split("/")[3] in src.whitelist
+                or str(request.url).split("/")[3] in AOS.whitelist
             ):
                 return await call_next(request)
 
@@ -178,7 +178,7 @@ class RateLimiter(BaseHTTPMiddleware):
 
         if not cf_ip:
             # development install?
-            src.requests += 1
+            AOS.requests += 1
             return await call_next(request)
 
         limited_ips[cf_ip] = [
@@ -196,7 +196,7 @@ class RateLimiter(BaseHTTPMiddleware):
 
         limited_ips[cf_ip].append(time.time())
 
-        src.requests += 1
+        AOS.requests += 1
 
         return await call_next(request)
 
@@ -221,6 +221,6 @@ class Logger(BaseHTTPMiddleware):
         return res
 
 
-src.app.add_middleware(AuthMiddleware)
-src.app.add_middleware(RateLimiter)
-src.app.add_middleware(Logger)
+AOS.app.add_middleware(AuthMiddleware)
+AOS.app.add_middleware(RateLimiter)
+AOS.app.add_middleware(Logger)

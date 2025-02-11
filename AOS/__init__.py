@@ -28,7 +28,7 @@ whitelist = ["logs", "css", "scss", "js", "img", "download-count", ".administer"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     il.cprint(
-        f"[✓] Done! Serving {len(app.routes)} routes on http://{argv[1]}:{argv[2]}.",
+        f"[✓] Done! Serving {len(app.routes)} routes on http://{argv[2]}:{argv[3]}.",
         32,
     )
     try:

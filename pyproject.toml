@@ -25,3 +25,6 @@ dependencies = [
 ]
 
 urls.PrimaryServer = "https://administer.notpyx.me"
+
+[project.scripts]
+aos = "AOS.__main__:main"
