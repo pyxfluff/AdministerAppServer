@@ -9,3 +9,5 @@ src/reporting
 
 build/
 src/administer_app_server.egg-info/
+
+AOS/

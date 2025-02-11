@@ -260,7 +260,10 @@ async def report_version(req: Request):
 
     db.set(round(time.time() / 86400), key, db.REPORTED_VERSIONS)
 
-    return JSONResponse({"code": 200, "message": "Version has been recorded"}, status_code=200)
+    return JSONResponse({"code": 200, "data": {
+        "EnableV2Nudge": False,
+        "IsMarketplaceDisabled": False
+    }}, status_code=200)
 
 @app.post("/app-config/upload")
 async def app_config(req: Request):
