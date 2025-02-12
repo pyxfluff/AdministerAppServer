@@ -13,9 +13,6 @@ from contextlib import asynccontextmanager
 
 from builtins import BaseException
 
-global app
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     il.cprint(

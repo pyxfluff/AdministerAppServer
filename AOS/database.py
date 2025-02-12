@@ -1,7 +1,7 @@
 # Copyright (c) 2023-2024 Codelet Team (pyxfluff / iiPythonx)
 
 # Modules
-from AOS import  globals
+from AOS import globals
 from typing import Any, List, Dict
 
 from pymongo import MongoClient

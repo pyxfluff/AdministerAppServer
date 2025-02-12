@@ -1,2 +1,0 @@
-[console_scripts]
-aos = AOS.__main__:main
