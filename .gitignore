@@ -10,3 +10,5 @@ src/reporting
 build/
 aos/administer_app_server.egg-info/
 administer_app_server.egg-info/
+
+uv.lock
