@@ -7,11 +7,13 @@ import asyncio
 import platform
 
 from sys import argv
-from fastapi import FastAPI
-from uvicorn import Config, Server
+from subprocess import Popen
+from builtins import BaseException
 from contextlib import asynccontextmanager
 
-from builtins import BaseException
+from fastapi import FastAPI
+from uvicorn import Config, Server
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,6 +26,10 @@ async def lifespan(app: FastAPI):
     finally:
         il.cprint("[✗] Goodbye, shutting things off...", 31)
 
+        if input("Would you like to rebuild and restart the app? [[y]es/[n]o/^C] ").lower() in ["y", "yes"]:
+            il.cprint("[-] Respawning process after an upgrade, see you soon..", 32)
+            Popen(f"uv pip install -e . --force-reinstall && aos serve {argv[2]} {argv[3]}", shell = True)
+
 
 class AOSVars:
     def __init__(self):
@@ -32,7 +38,7 @@ class AOSVars:
         self.enable_bot_execution: True
 
         self.dbattrs = {
-            "use_dev_db": False,
+            "use_dev_db": True,
             "use_mock_db": False,
             "address": self.is_dev
             and "mongodb://mail.iipython.dev:27017"
