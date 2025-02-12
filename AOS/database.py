@@ -1,7 +1,7 @@
 # Copyright (c) 2023-2024 Codelet Team (pyxfluff / iiPythonx)
 
 # Modules
-from AOS import is_dev, db_override
+from AOS import  globals
 from typing import Any, List, Dict
 
 from pymongo import MongoClient
@@ -11,29 +11,25 @@ from pymongo.errors import ConnectionFailure
 # Main database class
 class Database(object):
     def __init__(self) -> None:
-
-        # Reference tables
         for db_item in [
-            "error_refs",
             "apps",
-            "reported_versions",
-            "api_keys",
-            "places",
-            "abuse_logs",
             "logs",
+            "places",
             "secrets",
+            "api_keys",
+            "abuse_logs",
+            "error_refs",
+            "reported_versions",
         ]:
             setattr(self, db_item.upper(), db_item)
 
         client = MongoClient(
-            is_dev
-            and "mongodb://mail.iipython.dev:27017"
-            or "mongodb://127.0.0.1:27017",
-            serverSelectionTimeoutMS=15000,
+            globals.dbattrs["address"],
+            serverSelectionTimeoutMS=globals.dbattrs["timeout_ms"],
         )
 
         self.db = client [
-            is_dev and not db_override and "administer_dev" or "administer"
+            globals.is_dev and not globals.dbattrs["use_dev_db"] and "administer_dev" or "administer"
         ]
 
         try:

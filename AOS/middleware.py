@@ -1,4 +1,4 @@
-# pyxfluff 2024
+# pyxfluff 2024 - 2025
 
 from http import HTTPStatus
 from il import request as log_req
@@ -13,17 +13,8 @@ import platform
 from types import FunctionType
 from collections import defaultdict
 
+from AOS import globals
 from AOS.database import db
-import AOS
-
-roblox_lock = not AOS.is_dev
-
-rate_limit_reqs = 30
-rate_limit_reset = 150
-rate_limit_max_incidents = 5
-
-api_lock = False
-enable_sessions = False
 
 known_good_ips = []
 limited_ips = defaultdict(list)
@@ -35,7 +26,6 @@ blocked_games = db.get("__BLOCKED__GAMES__", db.API_KEYS)
 forbidden_ips = db.get("BLOCKED_IPS", db.ABUSE_LOGS) or []
 
 auth_key = db.get("__ENV_AUTH__", db.SECRETS)
-
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: FunctionType) -> Response:
@@ -59,7 +49,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         ):
             return JSONResponse({"code": 401, "message": "Bad authorization."}, 401)
 
-        if roblox_lock:
+        if globals.security["use_roblox_lock"]:
             if (
                 request.url
                 in [
@@ -68,7 +58,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     "https://adm_unstable.notpyx.me/"
                     "http://127.0.0.1:8000/",
                 ]
-                or str(request.url).split("/")[3] in AOS.whitelist
+                or str(request.url).split("/")[3] in globals.state["unchecked_endpoints"]
             ):
                 return await call_next(request)
 
@@ -126,13 +116,13 @@ class AuthMiddleware(BaseHTTPMiddleware):
             else:
                 known_good_ips.append(request.headers.get("CF-Connecting-IP"))
 
-        if api_lock and not request.headers.get("X-Administer-Key"):
+        if globals.security["use_api_keys"] and not request.headers.get("X-Administer-Key"):
             return JSONResponse(
                 {"code": 400, "message": "A valid API key must be used."},
                 status_code=401,
             )
 
-        elif api_lock and not db.get(
+        elif globals.security["use_api_keys"] and not db.get(
             request.headers.get("X-Administer-Key"), db.API_KEYS
         ):
             return JSONResponse(
@@ -140,7 +130,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 status_code=401,
             )
 
-        elif api_lock:
+        elif globals.security["use_api_keys"]:
             api_key_data = db.get(request.headers.get("X-Administer-Key"), db.API_KEYS)
 
             if (
@@ -156,7 +146,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     status_code=400,
                 )
 
-        if enable_sessions and not request.headers.get("X-Administer-Session"):
+        if globals.security["use_sessions"] and not request.headers.get("X-Administer-Session"):
             return JSONResponse(
                 {"code": 400, "message": "A valid session token is required."},
                 status_code=400,
@@ -178,7 +168,7 @@ class RateLimiter(BaseHTTPMiddleware):
 
         if not cf_ip:
             # development install?
-            AOS.requests += 1
+            globals.state["requests"] += 1
             return await call_next(request)
 
         limited_ips[cf_ip] = [
@@ -188,15 +178,14 @@ class RateLimiter(BaseHTTPMiddleware):
         ]
 
         if len(limited_ips[cf_ip]) >= rate_limit_reqs:
-            print("Rate limit exceeded")
             return Response(
                 status_code=429,
-                content="Too many requests. Try again later. Do NOT refresh this page or else you will be blocked.",
+                content="You're interacting with the API too quick and have triggered pre-defined limits by the owner of this sevrer. Try again later.",
             )
 
         limited_ips[cf_ip].append(time.time())
 
-        AOS.requests += 1
+        globals.state["requests"] += 1
 
         return await call_next(request)
 
@@ -220,7 +209,8 @@ class Logger(BaseHTTPMiddleware):
 
         return res
 
-
-AOS.app.add_middleware(AuthMiddleware)
-AOS.app.add_middleware(RateLimiter)
-AOS.app.add_middleware(Logger)
+class Middleware():
+    def __init__(self, app):
+        app.add_middleware(AuthMiddleware)
+        app.add_middleware(RateLimiter)
+        app.add_middleware(Logger)

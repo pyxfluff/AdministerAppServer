@@ -14,9 +14,9 @@ AOS/reporting/GraphReporter.py
 AOS/reporting/__init__.py
 AOS/reporting/report.py
 AOS/routes/__init__.py
-AOS/routes/api.py
+AOS/routes/backend.py
 AOS/routes/frontend.py
-AOS/routes/public_api.py
+AOS/routes/public.py
 administer_app_server.egg-info/PKG-INFO
 administer_app_server.egg-info/SOURCES.txt
 administer_app_server.egg-info/dependency_links.txt

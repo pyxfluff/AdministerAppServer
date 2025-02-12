@@ -19,11 +19,10 @@ The App Server is a FastAPI/MongoDB program which stores apps for use in Adminis
 We are working on improvements to this system (installation script, central config, ...) for a later date but this should hold you over for now.
 
 - Install MongoDB, uv, and Python 3.13.
-- Clone the repository and put your MongoDB URL in the src/database.py file. You'll also need to generate a security key and set it in the SECRETS db.
-- Run `uv venv`, enter the newly created enviornment with `source .venv/bin/activate`, and run `uv pip install .`. 
+- Clone the repository and edit the `globals` section of `AOS/__init__.py` to fit your specific needs. You'll also need to generate a security key and set it in the SECRETS db.
+- Run `uv venv`, enter the newly created enviornment with `source .venv/bin/activate`, and run `uv pip install -e . --force-reinstall`. 
 
-<!-- TODO: app server docs? -->
-... and you're done! Just run `uvicorn src:app` and you'll be up and running. To create test apps, use the `/app-config/upload` endpoint. For more information, read [the documentation]() 
+... and you're done! You can now run `aos` to access the Marketplace Server CLI. To create new assets in the DB, use the `/app-config/upload` endpoint. For more information, read [the documentation]() 
 
 ## Central Server Privacy
 
