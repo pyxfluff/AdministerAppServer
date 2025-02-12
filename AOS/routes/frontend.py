@@ -47,17 +47,17 @@ class Frontend():
             pass
 
 
-        @self.app.get("/to/{path:path}")
-        def social_to(path: str):
+        @self.app.get("/to/{fpath:path}")
+        def social_to(fpath: str):
             for route, path in {
                 "discord":     "https://discord.gg/3Q8xkcBT3M",
-                "git":        f"https://github.com/administer-org/{path.removeprefix("git/")}",
+                "git":        f"https://github.com/administer-org/{fpath.removeprefix("git/")}",
                 "discourse":   "https://devforum.roblox.com/t/3179989",
                 "roblox":      "https://create.roblox.com/store/asset/127698208806211/Administer",
                 "docs":        "https://docs.administer.notpyx.me"
             }.items():
-                if path.find(route):
-                    return RedirectResponse(route)
+                if route in fpath:
+                    return RedirectResponse(path)
 
             return {"error": "That path isn't a valid shortlink."}
 
